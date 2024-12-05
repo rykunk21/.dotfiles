@@ -20,4 +20,3 @@ PS1='[\u@\h \W]\$ '
 export PATH=$PATH:/home/admin/.spicetify
 
 
-alias ls='ls --ignore=.*'
