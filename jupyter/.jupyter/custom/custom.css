@@ -1,0 +1,119 @@
+/*This file contains any manual css for this page that needs to override the global styles.
+This is only required when different pages style the same element differently. This is just
+a hack to deal with our current css styles and no new styling should be added in this file.*/
+
+#ipython-main-app {
+    position: relative;
+}
+#jupyter-main-app {
+    position: relative;
+}
+
+
+answer{
+  display: block;
+  margin: 4px;
+  padding: 15px;
+  background-color: #27292c;
+  color: #4DEBB1;
+  border: 2px solid #4DEBB1;
+  border-radius: 18px;
+  transition: transform 0.5s ease, box-shadow 0.3s ease; /* Smooth transition */
+  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.5);
+  cursor: grab;
+
+}
+
+
+answer:hover {
+    transform: translate(-4px, -4px); 
+    box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.5);
+}
+
+answer:active {
+  cursor: grabbing;
+}
+
+/* CODE BLOCKS */
+answer pre code.language-pseudocode{
+  display: block;
+  background-color: #3a3c41;
+  padding: 10px;
+  padding-top: 0;
+  color: white;
+  border-radius: 5px;
+  border: 2px solid #4DEBB1;    
+  font-size: 1.3em;
+}
+
+answer code {
+  padding: 2px;
+  background-color: #3a4934;
+  color: #4DEBB1;
+}
+
+answer p a {
+  color: rgb(14, 196, 228) !important;
+  text-decoration: underline !important;
+}
+
+answer pre {
+  background-color: transparent !important;
+}
+
+
+answer pre code.language-pseudocode::first-line {
+   visibility: hidden;
+}
+
+
+answer pre code #text:hover {
+  cursor: text;
+}
+
+answer pre code {
+  font-weight: 800;
+}
+
+/* Javascript rules for pseudocode */
+
+/* Regular text*/
+
+answer .hightlight pre span {
+  color: white;
+}
+
+
+/*
+
+answer .highlight pre .nx{
+  color: white;
+}
+answer .highlight pre .k,  
+answer .highlight pre .kd {
+  color: #4DEBB1;
+}
+
+answer .highlight pre .mf{
+  color: #cadb2a
+}
+*/
+/*
+.jp-RenderedText pre {
+    color: #c8d8d2 !important;
+    font-size: var(--jp-code-font-size);
+}
+.jp-Editor{
+  padding: 15px;
+  border: 2px solid #4DEBB1;
+  border-radius: 18px;
+}
+
+.jp-OutputArea-output {
+  
+  padding: 15px;
+  background-color: #27292c;
+  border: 2px solid #4DEBB1;
+  border-radius: 18px;
+}
+*/
