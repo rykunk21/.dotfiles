@@ -19,8 +19,9 @@
         "network",
         "cpu",
         "memory",
-        "tray",
-        "custom/power"
+        "battery",
+				"custom/power"
+				
        
     ],
 
@@ -89,9 +90,6 @@
         "interval": 5,
         "format": "󰍛 {}%",
         "max-length": 10
-    },
-    "tray": {
-        "spacing": 10
     },
     "clock": {
         "tooltip-format": "{calendar}",

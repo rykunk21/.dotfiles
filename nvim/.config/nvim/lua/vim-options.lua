@@ -9,5 +9,10 @@ vim.o.number = true
 -- This is also a good place to setup other settings (vim.opt)
 vim.g.mapleader = " "
 vim.g.maplocalleader = "\\"
+vim.keymap.set('i', 'jj', '<Esc>', {})
 
+vim.keymap.set('n', '<leader>k', ':resize -5<CR>', { noremap = true, silent = true })  -- Resize up
+vim.keymap.set('n', '<leader>j', ':resize +5<CR>', { noremap = true, silent = true })  -- Resize down
+vim.keymap.set('n', '<leader>h', ':vertical resize +5<CR>', { noremap = true, silent = true })  -- Resize left
+vim.keymap.set('n', '<leader>l', ':vertical resize -5<CR>', {noremap = true, silent = true })  -- Resize right
 
