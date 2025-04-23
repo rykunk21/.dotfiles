@@ -1,0 +1,81 @@
+#!/bin/bash
+
+# Add verbose flag handling
+VERBOSE=0
+while getopts "v" opt; do
+    case $opt in
+        v) VERBOSE=1 ;;
+        *) echo "Usage: $0 [-v] <wallpaper_path>" && exit 1 ;;
+    esac
+done
+shift $((OPTIND-1))
+
+# Check if wallpaper path is provided and exists
+if [ -z "$1" ]; then
+    echo "Error: Please provide wallpaper path" >&2
+    exit 1
+fi
+
+WALLPAPER=$(realpath "$1")
+if [ ! -f "$WALLPAPER" ]; then
+    echo "Error: File not found: $WALLPAPER" >&2
+    exit 1
+fi
+
+# Function to handle output based on verbosity
+log() {
+    if [ $VERBOSE -eq 1 ]; then
+        echo "$1"
+    fi
+}
+
+# Function to properly background a process
+background_process() {
+    if [ $VERBOSE -eq 1 ]; then
+        "$@" &
+    else
+        "$@" </dev/null >/dev/null 2>&1 &
+    fi
+    disown
+}
+
+# This script updates the hyprpaper configuration and reloads hyprpaper.
+log "Setting wallpaper: $WALLPAPER"
+wal -i "$WALLPAPER" > /dev/null 2>&1 || {
+    echo "Error: wal failed to process the image" >&2
+    exit 1
+}
+
+# Verify wal cache was created
+if [ ! -f ~/.cache/wal/wal ]; then
+    log "Warning: Using direct wallpaper path as wal cache not found"
+    WAL_PATH="$WALLPAPER"
+else
+    WAL_PATH=$(cat ~/.cache/wal/wal)
+fi
+
+# Update hyprpaper config
+log "Updating hyprpaper config..."
+cat > ~/.config/hypr/hyprpaper.conf << EOF 
+preload = $WAL_PATH
+wallpaper = , $WAL_PATH
+EOF
+
+# Generate pywal colors
+log "Generating pywal colors..."
+wal -i "$WAL_PATH" > /dev/null 2>&1
+
+# Reload waybar
+log "Reloading waybar..."
+killall waybar 2>/dev/null
+sleep 0.1  # Small delay to ensure clean shutdown
+background_process waybar
+
+# Reload hyprpaper
+log "Reloading hyprpaper..."
+killall hyprpaper 2>/dev/null
+sleep 0.1  # Small delay to ensure clean shutdown
+background_process hyprpaper
+
+log "Done!"
+

@@ -14,6 +14,7 @@ PS1='[\u@\h \W]\$ '
 # Add software to path
 export PATH=$PATH:/home/admin/.spicetify
 export PATH=$PATH:/home/admin/.surrealdb
+export PATH=$PATH:/home/admin/.local/bin
 # >>> fuzzy find >>>
 eval "$(fzf --bash)"
 alias nfzf='nvim $(fzf --preview="viu -t {} > /dev/null 2>&1 || bat --color=always {}")'
