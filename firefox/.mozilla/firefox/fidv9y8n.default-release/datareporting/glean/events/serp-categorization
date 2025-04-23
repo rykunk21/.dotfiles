@@ -6,3 +6,5 @@
 {"timestamp":5536930,"category":"glean","name":"restarted","extra":{"glean_timestamp":"1730507004814","glean.startup.date":"2024-11-01T20:23-04:00"},"execution_counter":1}
 {"timestamp":9155436,"category":"glean","name":"restarted","extra":{"glean_timestamp":"1730510623319","glean.startup.date":"2024-11-01T21:23-04:00"},"execution_counter":2}
 {"timestamp":17378633,"category":"glean","name":"restarted","extra":{"glean.startup.date":"2025-04-10T16:44-04:00","glean_timestamp":"1744317885027"},"execution_counter":3}
+{"timestamp":158262646,"category":"glean","name":"restarted","extra":{"glean.startup.date":"2025-04-17T17:31-04:00","glean_timestamp":"1744925469897"},"execution_counter":4}
+{"timestamp":158287636,"category":"glean","name":"restarted","extra":{"glean.startup.date":"2025-04-17T17:31-04:00","glean_timestamp":"1744925494888"},"execution_counter":4}

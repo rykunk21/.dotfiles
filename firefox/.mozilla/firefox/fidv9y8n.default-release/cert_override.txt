@@ -1,0 +1,3 @@
+# PSM Certificate Override Settings file
+# This is a generated file!  Do not edit.
+172.16.64.1:443:	OID.2.16.840.1.101.3.4.2.1	AE:C0:D7:2B:EF:B9:9D:9E:0F:28:A9:29:7A:25:9F:E4:54:6D:EF:E6:4A:33:90:23:32:40:5B:1C:A1:B0:CD:16	
