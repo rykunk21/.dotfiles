@@ -1,1 +1,0 @@
-/home/admin/.cache/wal/colors-wal.vim

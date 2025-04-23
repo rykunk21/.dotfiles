@@ -41,7 +41,7 @@ background_process() {
 
 # This script updates the hyprpaper configuration and reloads hyprpaper.
 log "Setting wallpaper: $WALLPAPER"
-wal -i "$WALLPAPER" > /dev/null 2>&1 || {
+wal -i "$WALLPAPER" -t > /dev/null 2>&1 || {
     echo "Error: wal failed to process the image" >&2
     exit 1
 }
