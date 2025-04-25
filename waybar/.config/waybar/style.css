@@ -5,7 +5,7 @@
   border-radius: 0;
   min-height: 0;
   font-family: JetBrainsMono Nerd Font;
-  font-size: 13px;
+  font-size: 20px;
 }
 
 window#waybar {
@@ -30,9 +30,9 @@ window#waybar.hidden {
   /* Fix weird spacing in materia (waybar #450) */
   box-shadow: inset 0 -3px transparent;
   /* Use box-shadow instead of border so the text isn't offset */
-  padding: 6px 18px;
-  margin: 6px 3px;
-  border-radius: 4px;
+  padding: 8px 20px;
+  margin: 7px 4px;
+  border-radius: 10px;
   background-color: @background;
   color: @foreground;
 }
@@ -62,9 +62,9 @@ window#waybar.hidden {
 #network,
 #clock,
 #tray {
-  border-radius: 4px;
-  margin: 6px 3px;
-  padding: 6px 12px;
+  border-radius: 10px;
+  margin: 7px 4px;
+  padding: 8px 14px;
   background-color: #1e1e2e;
   color: #181825;
 }
@@ -78,10 +78,10 @@ window#waybar.hidden {
 }
 
 #custom-logo {
-  padding-right: 7px;
-  padding-left: 7px;
-  margin-left: 5px;
-  font-size: 15px;
+  padding-right: 10px;
+  padding-left: 10px;
+  margin-left: 6px;
+  font-size: 30px;
   border-radius: 8px 0px 0px 8px;
   color: #1793d1;
 }
