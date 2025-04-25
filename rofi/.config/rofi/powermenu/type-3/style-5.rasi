@@ -17,18 +17,18 @@ configuration {
 @import                          "shared/fonts.rasi"
 
 * {
-    /* Resolution : 1920x1080 */
-    box-spacing:                 50px;
-    box-margin:                  300px 250px;
-    box-padding:                 50px;
-    message-margin:              0px 400px;
+    /* Resolution : 2400x1600 */
+    box-spacing:                 75px;    /* Increased from 50px */
+    box-margin:                  450px 375px;  /* Adjusted from 300px 250px */
+    box-padding:                 75px;    /* Increased from 50px */
+    message-margin:              0px 600px;  /* Increased from 400px */
     inputbar-spacing:            0px;
     list-spacing:                0px;
-    general-padding:             20px;
-    element-padding:             90px 10px;
-    element-radius:              80px;
+    general-padding:             30px;    /* Increased from 20px */
+    element-padding:             135px 15px;  /* Increased from 90px 10px */
+    element-radius:              120px;   /* Increased from 80px */
     general-radius:              100%;
-    element-font:                "feather 48";
+    element-font:                "feather 72";  /* Increased from 48 */
 }
 
 /*****----- Main Window -----*****/
