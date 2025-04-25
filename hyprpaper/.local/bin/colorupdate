@@ -32,12 +32,15 @@ log() {
 # Function to properly background a process
 background_process() {
     if [ $VERBOSE -eq 1 ]; then
-        "$@" &
+        nohup "$@" > /dev/null 2>&1 &
     else
-        "$@" </dev/null >/dev/null 2>&1 &
+        nohup "$@" > /dev/null 2>&1 &
     fi
     disown
 }
+
+# Clear the terminal before starting
+clear
 
 # This script updates the hyprpaper configuration and reloads hyprpaper.
 log "Setting wallpaper: $WALLPAPER"
@@ -77,5 +80,7 @@ killall hyprpaper 2>/dev/null
 sleep 0.1  # Small delay to ensure clean shutdown
 background_process hyprpaper
 
+# Clear the screen again before finishing
+clear
 log "Done!"
 
