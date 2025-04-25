@@ -1,179 +1,123 @@
-// -*- mode: jsonc -*-
 {
-    "layer": "top", // Waybar at top layer
-    "position": "top", // Waybar position (top|bottom|left|right)
-    "height": 34, // Waybar height (to be removed for auto height)
-    // "width": 1280, // Waybar width
-    "spacing": 0,
-
-    "modules-left": [
-        "custom/logo",
-        "hyprland/workspaces"
-    ],
-    "modules-center": [
-        "clock"
-    ],
-    "modules-right": [
-        "mpd",
-        "pulseaudio",
-        "network",
-        "cpu",
-        "memory",
-        "battery",
-				"custom/power"
-				
-       
-    ],
-
-    "wlr/taskbar": {
-        "format": "{icon}",
-        "on-click": "activate",
-        "on-click-right": "fullscreen",
-        "icon-theme": "WhiteSur",
-        "icon-size": 25,
-        "tooltip-format": "{title}"
+  "margin-top": 0,
+  "margin-left": 120,
+  "margin-bottom": 0,
+  "margin-right": 120,
+  "height": 60, 
+  "layer": "top",
+  "position": "top",
+  "output": "eDP-1",
+  "spacing": 15,
+  "modules-left": ["custom/launcher", "clock", "clock#date"],
+  "modules-center": ["hyprland/workspaces"],
+  "modules-right": ["pulseaudio", "network", "battery", "custom/powermenu"],
+  "hyprland/workspaces": {
+      "disable-scroll": true,
+      "all-outputs": true,
+      "on-click": "activate",
+      "on-scroll-up": "hyprctl dispatch workspace e+1",
+      "on-scroll-down": "hyprctl dispatch workspace e-1",
+      "persistent_workspaces": {
+          "1": [],
+          "2": [],
+          "3": [],
+          "4": [],
+          "5": [],
+          "6": [],
+          "7": [],
+          "8": [],
+          "9": [],
+          "10": []
+      },
+  },
+  
+  "custom/launcher": {
+      "interval": "once",
+      "format": "󰣇",
+      "on-click": "pkill wofi || ~/.config/rofi/scripts/launcher_t6",
+      "tooltip": false
     },
 
-    "hyprland/workspaces": {
-        "on-click": "activate",
-        "format": "{icon}",
-        "format-icons": {
-            "default": "",
-            "1": "1",
-            "2": "2",
-            "3": "3",
-            "4": "4",
-            "5": "5",
-            "6": "6",
-            "7": "7",
-            "8": "8",
-            "9": "9",
-            "active": "󱓻",
-            "urgent": "󱓻"
-        },
-        "persistent_workspaces": {
-            "1": [],
-            "2": [],
-            "3": [],
-            "4": [],
-            "5": []
-        }
-    },
-    "mpd": {
-        "format": "{stateIcon} {consumeIcon}{randomIcon}{repeatIcon}{singleIcon}{artist} - {album} - {title} ({elapsedTime:%M:%S}/{totalTime:%M:%S}) ⸨{songPosition}|{queueLength}⸩ {volume}% ",
-        "format-disconnected": "Disconnected ",
-        "format-stopped": "{consumeIcon}{randomIcon}{repeatIcon}{singleIcon}Stopped ",
-        "unknown-tag": "N/A",
-        "interval": 5,
-        "consume-icons": {
-            "on": " "
-        },
-        "random-icons": {
-            "off": "<span color=\"#f53c3c\"></span> ",
-            "on": " "
-        },
-        "repeat-icons": {
-            "on": " "
-        },
-        "single-icons": {
-            "on": "1 "
-        },
-        "state-icons": {
-            "paused": "",
-            "playing": ""
-        },
-        "tooltip-format": "MPD (connected)",
-        "tooltip-format-disconnected": "MPD (disconnected)"
-    },
+    "backlight": {
+      "device": "nvidia_0",
+      "max-length": "4",
+      "format": "{icon}",
+      "tooltip-format": "{percent}%",
+      "format-icons": ["","","","", "", "", ""],
+      "on-click": "",
+      "on-scroll-up": "brightnessctl set 10%-",
+      "on-scroll-down": "brightnessctl set +10%"
+  },
 
-    "memory": {
-        "interval": 5,
-        "format": "󰍛 {}%",
-        "max-length": 10
-    },
-    "clock": {
-        "tooltip-format": "{calendar}",
-        "format-alt": "  {:%a, %d %b %Y}",
-        "format": "  {:%I:%M %p}"
-    },
-    "network": {
-        "format-wifi" : "{icon}",
-        "format-icons": ["󰤯","󰤟","󰤢","󰤥","󰤨"],
-        "format-ethernet": "󰀂",
-        "format-alt" : "󱛇",
-        "format-disconnected" : "󰖪",
-        "tooltip-format-wifi": "{icon} {essid}\n⇣{bandwidthDownBytes}  ⇡{bandwidthUpBytes}",
-        "tooltip-format-ethernet": "󰀂  {ifname}\n⇣{bandwidthDownBytes}  ⇡{bandwidthUpBytes}",
-        "tooltip-format-disconnected": "Disconnected",
-        "on-click": "~/.config/rofi/wifi/wifi.sh &",
-        "on-click-right": "~/.config/rofi/wifi/wifinew.sh &",
-        "interval": 5,
-        "nospacing": 1
-    },
-    "custom/logo": {
-        "format": "  ",
-        "tooltip": false,
-        "on-click": "~/.config/rofi/scripts/launcher_t6 &"
-    },
-    "battery": {
-        "format": "{capacity}% {icon}",
-        "format-icons": {
-            "charging": [
-                "󰢜",
-                "󰂆",
-                "󰂇",
-                "󰂈",
-                "󰢝",
-                "󰂉",
-                "󰢞",
-                "󰂊",
-                "󰂋",
-                "󰂅"
-            ],
-            "default": [
-                "󰁺",
-                "󰁻",
-                "󰁼",
-                "󰁽",
-                "󰁾",
-                "󰁿",
-                "󰂀",
-                "󰂁",
-                "󰂂",
-                "󰁹"
-            ]
-        },
-        "format-full": "Charged ",
-        "interval": 5,
-        "states": {
-            "warning": 20,
-            "critical": 10
-        },
-        "tooltip": false
-    },
+  "memory": {
+    "interval": 30,
+    "format": "  {}%",
+    "format-alt":" {used:0.1f}G",
+    "max-length": 10
+},
 
-    "pulseaudio": {
-        // "scroll-step": 1, // %, can be a float
-        "format": "{volume}% {icon}",
-        "format-bluetooth": "{volume}% {icon} ",
-        "format-bluetooth-muted": " {icon}",
-        "format-muted": "",
-        "format-source": "{volume}% ",
-        "format-source-muted": "",
-        "format-icons": {
-            "headphone": "",
-            "hands-free": "",
-            "headset": "",
-            "phone": "",
-            "portable": "",
-            "car": "",
-            "default": ["", "", ""]
-        },
-        "on-click": "pavucontrol"
+  "custom/dunst": {
+      "exec": "~/.config/waybar/scripts/dunst.sh",
+      "on-click": "dunstctl set-paused toggle",
+      "restart-interval": 1,
+      "tooltip": false
+  },
+
+  "pulseaudio": {
+      "format": "{icon} {volume}%",
+      "format-bluetooth": "{icon}  {volume}%",
+      "format-bluetooth-muted": "婢  muted",
+      "format-muted": "婢 muted",
+      "format-icons": {
+          "headphone": "",
+          "hands-free": "",
+          "headset": "",
+          "phone": "",
+          "portable": "",
+          "car": "",
+          "default": ["", "", ""]
+      },
+      "on-click-right": "pavucontrol",
+    "on-click": "pactl set-sink-mute @DEFAULT_SINK@ toggle",
+  },
+
+"network": {
+      "format-wifi": " {signalStrength}%",
+      "format-ethernet": " {signalStrength}%",
+      "format-disconnected": "󰤭",
+      "on-click": "sh ~/.config/wofi/scripts/wifimenu.sh"
+},
+
+"battery": {
+    "bat": "BAT1",
+    "adapter": "ADP1",
+    "interval": 60,
+    "states": {
+        "warning": 30,
+        "critical": 15
     },
-    "custom/power": {
-        "format" : " ⏻ ",
-		"tooltip": false,
-		"on-click": "~/.config/rofi/scripts/powermenu_t3"
-    }
+    "max-length": 10,
+    "format": "{icon} {capacity}%",
+    "format-warning": "{icon} {capacity}%",
+    "format-critical": "{icon} {capacity}%",
+    "format-charging": " {capacity}%",
+    "format-plugged": " {capacity}%",
+    "format-alt": "{icon} {capacity}%",
+    "format-full": " 100%",
+    "format-icons": ["", "", "", "", "", "", "", "", "", ""]
+},
+
+"clock": {
+    "format": " {:%H:%M}"
+},
+
+"clock#date": {
+  "format": " {:%A, %B %d, %Y}"
+},
+
+"custom/powermenu": {
+    "format": "",
+    "on-click": "~/.config/rofi/scripts/powermenu_t3",
+    "tooltip": false
+  }
 }

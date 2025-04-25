@@ -15,9 +15,9 @@ configuration {
     display-run:                " Run";
     display-filebrowser:        " Files";
     display-window:             " Windows";
-	display-ssh:                " SSH";
-	drun-display-format:        "{name}";
-	window-format:              "{w} · {c} · {t}";
+		display-ssh:                " SSH";
+		drun-display-format:        "{name}";
+		window-format:              "{w} · {c} · {t}";
 }
 
 /*****----- Global Properties -----*****/
@@ -57,7 +57,7 @@ window {
     location:                    center;
     anchor:                      center;
     fullscreen:                  false;
-    width:                       700px;
+    width:                       1024px;
     x-offset:                    0px;
     y-offset:                    0px;
 
@@ -168,7 +168,7 @@ case-indicator {
 listview {
     enabled:                     true;
     columns:                     1;
-    lines:                       6;
+    lines:                       8;
     cycle:                       true;
     dynamic:                     true;
     scrollbar:                   false;

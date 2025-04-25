@@ -8,8 +8,11 @@ export XDG_CONFIG_HOME="$HOME/.config"
 
 # Add surrealdb to path
 PATH=$PATH:/home/admin/.surrealdb
+PATH=$PATH:/home/admin/.local/bin
 
-# If not running interactively, don't do anything
+# Custom command aliases
+alias nfzf='selected=$(fzf --preview="bat --color=always --style=numbers --line-range :500 {}"); if [ -d "$selected" ]; then cd "$selected" && nvim .; else cd "$(dirname "$selected")" && nvim "$(basename "$selected")"; fi'
+
 [[ $- != *i* ]] && return
 
 alias ls='ls --color=auto'

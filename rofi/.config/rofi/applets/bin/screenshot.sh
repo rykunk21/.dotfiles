@@ -11,7 +11,7 @@ theme="$type/$style"
 
 # Theme Elements
 prompt='Screenshot'
-mesg="DIR: `xdg-user-dir PICTURES`/Screenshots"
+mesg="DIR: `xdg-user-dir PICTURES`/misc"
 
 if [[ "$theme" == *'type-1'* ]]; then
 	list_col='1'
@@ -67,7 +67,7 @@ run_rofi() {
 # Screenshot
 time=`date +%Y-%m-%d-%H-%M-%S`
 geometry=`xrandr | grep 'current' | head -n1 | cut -d',' -f2 | tr -d '[:blank:],current'`
-dir="`xdg-user-dir PICTURES`/Screenshots"
+dir="`xdg-user-dir PICTURES`/misc"
 file="Screenshot_${time}_${geometry}.png"
 
 if [[ ! -d "$dir" ]]; then
@@ -78,7 +78,6 @@ fi
 notify_view() {
 	notify_cmd_shot='dunstify -u low --replace=699'
 	${notify_cmd_shot} "Copied to clipboard."
-	viewnior ${dir}/"$file"
 	if [[ -e "$dir/$file" ]]; then
 		${notify_cmd_shot} "Screenshot Saved."
 	else
@@ -88,43 +87,40 @@ notify_view() {
 
 # Copy screenshot to clipboard
 copy_shot () {
-	tee "$file" | xclip -selection clipboard -t image/png
-}
+    # Copy and save
+		# tee "$file" | wl-copy
 
-# countdown
-countdown () {
-	for sec in `seq $1 -1 1`; do
-		dunstify -t 1000 --replace=699 "Taking shot in : $sec"
-		sleep 1
-	done
+		# Copy only
+		wl-copy
 }
 
 # take shots
 shotnow () {
-	cd ${dir} && sleep 0.5 && maim -u -f png | copy_shot
-	notify_view
+    cd ${dir} && sleep 0.5 && grim - | copy_shot
+    notify_view
 }
 
 shot5 () {
-	countdown '5'
-	sleep 1 && cd ${dir} && maim -u -f png | copy_shot
-	notify_view
+    countdown '5'
+    sleep 1 && cd ${dir} && grim - | copy_shot
+    notify_view
 }
 
 shot10 () {
-	countdown '10'
-	sleep 1 && cd ${dir} && maim -u -f png | copy_shot
-	notify_view
+    countdown '10'
+    sleep 1 && cd ${dir} && grim - | copy_shot
+    notify_view
 }
 
 shotwin () {
-	cd ${dir} && maim -u -f png -i `xdotool getactivewindow` | copy_shot
-	notify_view
+    cd ${dir} && grim -g "$(hyprctl activewindow -j | jq -r '"\(.at[0]),\(.at[1]) \(.size[0])x\(.size[1])"')" - | copy_shot
+    notify_view
 }
 
 shotarea () {
-	cd ${dir} && maim -u -f png -s -b 2 -c 0.35,0.55,0.85,0.25 -l | copy_shot
-	notify_view
+    cd ${dir}
+    slurp | xargs -I {} grim -g "{}" - | copy_shot
+    notify_view
 }
 
 # Execute Command
