@@ -13,6 +13,10 @@ return 	{
 
 		vim.keymap.set('n', '<leader>fg', builtin.live_grep, {})
 		vim.keymap.set('n', '<leader>E', builtin.diagnostics, {})
+		vim.keymap.set('n', '<leader>fb', builtin.buffers, {})
+	
+	-- Custom AI chat picker
+
 	end
 	},
 	{

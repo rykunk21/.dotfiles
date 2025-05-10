@@ -26,7 +26,7 @@ term_cmd='kitty'
 file_cmd='thunar'
 text_cmd='geany'
 web_cmd='chromium --force-device-scale-factor=1.5'
-music_cmd='alacritty -e ncmpcpp'
+music_cmd='spotify'
 setting_cmd='xfce4-settings-manager'
 
 # Options

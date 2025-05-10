@@ -10,10 +10,13 @@
 
 window#waybar {
   background-color: @background;
-	border-radius: 15px;
+	border-radius: 0px 0px 15px 15px;
 	margin: 5px 15px; 
-  transition-property: background-color;
+  transition-property: background-color;	
   transition-duration: 0.5s;
+	border-bottom: 2px solid @color4;
+	border-left: 2px solid @color4;
+	border-right: 2px solid @color4;
 }
 
 window#waybar.hidden {
@@ -112,8 +115,10 @@ window#waybar.hidden {
 #battery.warning,
 #battery.critical,
 #battery.urgent {
-  background-color: #ff0000;
-  color: #FFFF00;
+  background-color: #db4444;
+  color: #181825;
+	font-size: 22px;
+	font-weight: bold;
 }
 
 #battery.charging {
@@ -132,7 +137,8 @@ window#waybar.hidden {
 
 #clock {
   font-family: JetBrainsMono Nerd Font;
-  background-color: @color8;
+  background-color: @color4;
+
 }
 
 

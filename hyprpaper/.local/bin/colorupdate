@@ -5,22 +5,18 @@ VERBOSE=0
 while getopts "v" opt; do
     case $opt in
         v) VERBOSE=1 ;;
-        *) echo "Usage: $0 [-v] <wallpaper_path>" && exit 1 ;;
+        *) echo "Usage: $0 [-v] <wallpaper_path_or_url>" && exit 1 ;;
     esac
 done
 shift $((OPTIND-1))
 
-# Check if wallpaper path is provided and exists
+# Check if wallpaper path or URL is provided
 if [ -z "$1" ]; then
-    echo "Error: Please provide wallpaper path" >&2
+    echo "Error: Please provide a wallpaper path or URL" >&2
     exit 1
 fi
 
-WALLPAPER=$(realpath "$1")
-if [ ! -f "$WALLPAPER" ]; then
-    echo "Error: File not found: $WALLPAPER" >&2
-    exit 1
-fi
+WALLPAPER=$1
 
 # Function to handle output based on verbosity
 log() {
@@ -42,9 +38,27 @@ background_process() {
 # Clear the terminal before starting
 clear
 
+# Check if the provided input is a URL or a local file
+if [[ "$WALLPAPER" =~ ^https?:// ]]; then
+    # It's a URL, download the image
+    TEMP_WALLPAPER="$HOME/.cache/wal/temp_wallpaper.jpg"
+    log "Downloading wallpaper from: $WALLPAPER"
+    curl -s -o "$TEMP_WALLPAPER" "$WALLPAPER" || {
+        echo "Error: Failed to download wallpaper from $WALLPAPER" >&2
+        exit 1
+    }
+else
+    # It's a local file, check if it exists
+    if [ ! -f "$WALLPAPER" ]; then
+        echo "Error: File not found: $WALLPAPER" >&2
+        exit 1
+    fi
+    TEMP_WALLPAPER="$WALLPAPER"
+fi
+
 # This script updates the hyprpaper configuration and reloads hyprpaper.
-log "Setting wallpaper: $WALLPAPER"
-wal -i "$WALLPAPER" -t > /dev/null 2>&1 || {
+log "Setting wallpaper: $TEMP_WALLPAPER"
+wal -i "$TEMP_WALLPAPER" -t > /dev/null 2>&1 || {
     echo "Error: wal failed to process the image" >&2
     exit 1
 }
@@ -52,7 +66,7 @@ wal -i "$WALLPAPER" -t > /dev/null 2>&1 || {
 # Verify wal cache was created
 if [ ! -f ~/.cache/wal/wal ]; then
     log "Warning: Using direct wallpaper path as wal cache not found"
-    WAL_PATH="$WALLPAPER"
+    WAL_PATH="$TEMP_WALLPAPER"
 else
     WAL_PATH=$(cat ~/.cache/wal/wal)
 fi
