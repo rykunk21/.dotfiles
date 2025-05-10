@@ -1,23 +1,21 @@
-return 	{
+return {
 	{
-	'nvim-telescope/telescope.nvim', tag = '0.1.8',
-	dependencies = { 'nvim-lua/plenary.nvim' },
-	config = function()
-		local builtin = require("telescope.builtin")
+		'nvim-telescope/telescope.nvim',
+		tag = '0.1.8',
+		dependencies = { 'nvim-lua/plenary.nvim' },
+		config = function()
+			local builtin = require("telescope.builtin")
 
-		vim.keymap.set('n', '<leader>ff', function()
-			require('telescope.builtin').find_files({
-				hidden = true
-			})
-		end)
+			vim.keymap.set('n', '<leader>ff', function()
+				require('telescope.builtin').find_files({
+					hidden = true
+				})
+			end)
 
-		vim.keymap.set('n', '<leader>fg', builtin.live_grep, {})
-		vim.keymap.set('n', '<leader>E', builtin.diagnostics, {})
-		vim.keymap.set('n', '<leader>fb', builtin.buffers, {})
-	
-	-- Custom AI chat picker
-
-	end
+			vim.keymap.set('n', '<leader>fg', builtin.live_grep, {})
+			vim.keymap.set('n', '<leader>E', builtin.diagnostics, {})
+			vim.keymap.set('n', '<leader>fb', builtin.buffers, {})
+		end
 	},
 	{
 		"nvim-telescope/telescope-ui-select.nvim",
@@ -39,5 +37,3 @@ return 	{
 
 	}
 }
-
-

@@ -7,85 +7,40 @@ return {
 		-- Set this BEFORE any other configuration
 		vim.g.augment_disable_default_ui = true
 
+		-- Workspace folders
 		vim.g.augment_workspace_folders = {
+
 			"~/repos/",
-			"~/.dotfiles"
+			"~/.dotfiles/",
+			"~/temp/augment.vim/"
 		}
 
-		-- Add debug output to help diagnose the issue
-		vim.g.augment_response_callback = function(response)
-			-- Find the buffer from your custom-window.lua
-			local augment_buf = nil
-			local augment_win = nil
-			local found = false
 
-			-- Look through all windows to find our custom one
-			for _, win in ipairs(vim.api.nvim_list_wins()) do
-				local buf = vim.api.nvim_win_get_buf(win)
-				local config = vim.api.nvim_win_get_config(win)
 
-				-- Check if this is our custom window by looking at the title
-				if config.title == "Augment Chat" then
-					augment_buf = buf
-					augment_win = win
-					found = true
-					break
-				end
-			end
 
-			-- If we couldn't find the window, create it
-			if not found then
-				-- Try to call the toggle function if it exists
-				local ok, _ = pcall(function()
-					vim.cmd("lua require('plugins.custom-window').toggle_augment_float()")
-				end)
-
-				if not ok then
-					-- If that fails, try again with the window search
+		-- Create an autocmd to close only the default panel window, not your custom floating window
+		vim.api.nvim_create_autocmd("BufWinEnter", {
+			pattern = "*AugmentChatHistory*",
+			callback = function()
+				vim.defer_fn(function()
+					-- Get all windows displaying the AugmentChatHistory buffer
 					for _, win in ipairs(vim.api.nvim_list_wins()) do
 						local buf = vim.api.nvim_win_get_buf(win)
-						local config = vim.api.nvim_win_get_config(win)
+						local buf_name = vim.api.nvim_buf_get_name(buf)
 
-						if config.title == "Augment Chat" then
-							augment_buf = buf
-							augment_win = win
-							found = true
-							break
+						-- Check if this is the AugmentChatHistory buffer
+						if buf_name:match("AugmentChatHistory") then
+							-- Check if this is NOT our custom floating window
+							local win_config = vim.api.nvim_win_get_config(win)
+
+							-- Default panels are not floating windows, so close them
+							if win_config.relative == "" then
+								vim.fn.win_execute(win, 'close')
+							end
 						end
 					end
-				end
+				end, 10)
 			end
-
-			if augment_buf and vim.api.nvim_buf_is_valid(augment_buf) then
-				local lines = vim.api.nvim_buf_get_lines(augment_buf, 0, -1, false)
-				-- Split the response into lines
-				local response_lines = {}
-				for line in response:gmatch("[^\r\n]+") do
-					table.insert(response_lines, line)
-				end
-
-				-- Add the first line with "Augment: " prefix
-				if #response_lines > 0 then
-					table.insert(lines, "Augment: " .. response_lines[1])
-					-- Add the rest of the lines with proper indentation
-					for i = 2, #response_lines do
-						table.insert(lines, "         " .. response_lines[i])
-					end
-				else
-					table.insert(lines, "Augment: " .. response)
-				end
-
-				table.insert(lines, "")
-				vim.api.nvim_buf_set_lines(augment_buf, 0, -1, false, lines)
-
-				-- Scroll to the bottom of the buffer
-				if augment_win and vim.api.nvim_win_is_valid(augment_win) then
-					vim.api.nvim_win_set_cursor(augment_win, { #lines, 0 })
-				end
-			else
-				-- Fallback to print if we couldn't find the buffer
-				print("Augment: Could not find custom window. Response: " .. response:sub(1, 50) .. "...")
-			end
-		end
+		})
 	end
 }
