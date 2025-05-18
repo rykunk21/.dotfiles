@@ -41,7 +41,10 @@ clear
 # Check if the provided input is a URL or a local file
 if [[ "$WALLPAPER" =~ ^https?:// ]]; then
     # It's a URL, download the image
-    TEMP_WALLPAPER="$HOME/.cache/wal/temp_wallpaper.jpg"
+
+		EXT="${WALLPAPER##*.}"
+		EXT="${EXT%%\?*}"  # In case the URL has query params like ?size=large
+		TEMP_WALLPAPER="$HOME/.cache/wal/temp_wallpaper.$EXT"
     log "Downloading wallpaper from: $WALLPAPER"
     curl -s -o "$TEMP_WALLPAPER" "$WALLPAPER" || {
         echo "Error: Failed to download wallpaper from $WALLPAPER" >&2

@@ -108,7 +108,7 @@
 },
 
 "clock": {
-    "format": " {:%H:%M}"
+    "format": " {:%I:%M %p}"
 },
 
 "clock#date": {

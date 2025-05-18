@@ -17,8 +17,6 @@ alias nfzf='selected=$(fzf --preview="bat --color=always --style=numbers --line-
 
 alias scandisk='ncdu ~'
 
-
-
 # CD to parent directory of file selected with fzf
 alias cdfzf='if [ "$TERM" = "xterm-kitty" ]; then 
   FZF_PREVIEW_COLUMNS=${FZF_PREVIEW_COLUMNS:-80}

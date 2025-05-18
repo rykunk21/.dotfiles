@@ -6,6 +6,7 @@ return {
 		local augment_win = nil
 		local augment_input_buf = nil
 		local augment_input_win = nil
+		local augment_content = {}
 
 		-- Forward declare functions
 		local create_input_window
@@ -25,20 +26,62 @@ return {
 			return nil
 		end
 
+
 		toggle_augment_float = function()
-			-- If either window exists, close both windows
-			if (augment_win and vim.api.nvim_win_is_valid(augment_win)) or
-					(augment_input_win and vim.api.nvim_win_is_valid(augment_input_win)) then
-				close_augment_windows()
+			-- Check if the cursor is in the input window
+			if augment_input_win and vim.api.nvim_win_is_valid(augment_input_win) and vim.api.nvim_get_current_win() ~= augment_input_win then
+				-- if the window is open and the cursor is not inside it, move the cursor inside the input window
+				vim.api.nvim_set_current_win(augment_input_win)
 				return
 			end
+			-- Check if the input window exists and is valid
+			if augment_input_win and vim.api.nvim_win_is_valid(augment_input_win) then
+				-- If the input window is open, close both windows (input and chat buffer)
+				close_augment_windows()
+			else
+				-- If the input window is not open, open the input window and the chat buffer
+				-- Save the current buffer before opening windows
+				original_buf = vim.api.nvim_get_current_buf()
 
-			-- Save the current buffer before opening windows
-			original_buf = vim.api.nvim_get_current_buf()
+				-- Create the input window first
+				create_input_window()
 
-			-- Create input window first without waiting for buffer
-			create_input_window()
+				-- Open the AugmentChatHistory buffer
+				augment_buf = find_augment_buffer()
+
+				if augment_buf then
+					-- If the AugmentChatHistory buffer exists, open it
+					local width = math.floor(vim.o.columns * 0.75)
+					local input_height = 3 -- Height of input window
+					local padding = 2 -- Extra padding for visual spacing
+
+					-- Calculate main window height to fill available space
+					local main_height = math.floor(vim.o.lines - input_height - padding * 2)
+					local row = padding + input_height + padding -- Position the augment window below the input window
+					local col = math.floor((vim.o.columns - width) / 2)
+
+					local opts = {
+						relative = "editor",
+						width = width,
+						height = main_height,
+						row = row,
+						col = col,
+						style = "minimal",
+						border = "rounded",
+						title = "Augment Chat",
+						title_pos = "center"
+					}
+
+					-- Open the augment window
+					augment_win = vim.api.nvim_open_win(augment_buf, true, opts)
+
+					-- Make sure the input window stays on top
+					vim.api.nvim_win_set_config(augment_input_win, { zindex = 50 })
+					vim.api.nvim_win_set_config(augment_win, { zindex = 40 })
+				end
+			end
 		end
+
 
 		-- Define create_input_window function
 		create_input_window = function()
@@ -74,6 +117,9 @@ return {
 			-- Create input window
 			augment_input_win = vim.api.nvim_open_win(augment_input_buf, true, input_opts)
 
+			-- Set the cursor to this window just created
+			vim.api.nvim_set_current_win(augment_input_win)
+
 			-- Set up keymaps for sending messages
 			vim.keymap.set("n", "<CR>", function()
 				send_message()
@@ -87,41 +133,26 @@ return {
 
 
 		send_message = function()
+			-- Get the lines from the augment_input_buf
 			local lines = vim.api.nvim_buf_get_lines(augment_input_buf, 0, -1, false)
 			local message = table.concat(lines, "\n")
 
+			-- Proceed if the message is non-empty
 			if message and message:gsub("%s", "") ~= "" then
-				-- Clear input buffer
+				-- Clear the input buffer
 				vim.api.nvim_buf_set_lines(augment_input_buf, 0, -1, false, { "" })
 
-				-- Save current window to restore later
+				-- Save the current window to restore later
 				local current_win = vim.api.nvim_get_current_win()
 
-				-- Use a temporary hidden buffer to execute commands
-				local temp_buf = vim.api.nvim_create_buf(false, true)
-				local temp_win = vim.api.nvim_open_win(temp_buf, false, {
-					relative = 'editor',
-					width = 1,
-					height = 1,
-					row = 0,
-					col = 0,
-					style = 'minimal',
-					noautocmd = true,
-				})
+				-- Use the current buffer directly (the file the user is working in)
+				local original_buf = vim.api.nvim_get_current_buf()
 
-				-- Set context in the temporary window
-				if original_buf and vim.api.nvim_buf_is_valid(original_buf) then
-					vim.api.nvim_win_set_buf(temp_win, original_buf)
-					vim.fn['augment#chat#SaveUri']()
-				end
-
-				-- Run Augment's chat command in the temporary window
-				vim.api.nvim_win_call(temp_win, function()
+				-- Run the Augment chat command from the original buffer
+				vim.api.nvim_win_call(current_win, function()
+					-- Run the command in the context of the current buffer
 					vim.cmd("Augment chat '" .. message:gsub("'", "\\'") .. "'")
 				end)
-
-				-- Close temporary window
-				vim.api.nvim_win_close(temp_win, true)
 
 				-- Find the Augment buffer after command execution
 				augment_buf = find_augment_buffer()
@@ -130,14 +161,20 @@ return {
 					-- Create the main window if it doesn't exist
 					if not augment_win or not vim.api.nvim_win_is_valid(augment_win) then
 						local width = math.floor(vim.o.columns * 0.75)
-						local height = math.floor(vim.o.lines * 0.75 - 10)
-						local row = math.floor((vim.o.lines - height) / 2)
+						local input_height = 3 -- Height of input window
+						local padding = 2 -- Extra padding for visual spacing
+						local offset = 5
+
+						-- Calculate main window height to fill available space
+						local main_height = math.floor(vim.o.lines - input_height + offset - padding * 2)
+						local row = padding + input_height +
+								padding -- Position the augment window below the input window (input_height + padding)
 						local col = math.floor((vim.o.columns - width) / 2)
 
 						local opts = {
 							relative = "editor",
 							width = width,
-							height = height,
+							height = main_height,
 							row = row,
 							col = col,
 							style = "minimal",
@@ -147,6 +184,11 @@ return {
 						}
 
 						augment_win = vim.api.nvim_open_win(augment_buf, true, opts)
+
+						-- Restore saved content if available
+						if #augment_content > 0 then
+							vim.api.nvim_buf_set_lines(augment_buf, 0, -1, false, augment_content)
+						end
 
 						-- Set up keymaps for closing the window
 						vim.keymap.set("n", "q", function()
@@ -159,10 +201,13 @@ return {
 				end
 			end
 		end
-
-
 		-- Define close_augment_windows function
 		close_augment_windows = function()
+			-- Save buffer content before closing if valid
+			if augment_buf and vim.api.nvim_buf_is_valid(augment_buf) then
+				augment_content = vim.api.nvim_buf_get_lines(augment_buf, 0, -1, false)
+			end
+
 			-- Close windows if they exist and are valid
 			if augment_win and vim.api.nvim_win_is_valid(augment_win) then
 				vim.api.nvim_win_close(augment_win, true)
@@ -174,6 +219,8 @@ return {
 				augment_input_win = nil
 			end
 		end
+
+
 
 		-- Set up keybinding to toggle the float
 		vim.keymap.set("n", "<leader>af", function()

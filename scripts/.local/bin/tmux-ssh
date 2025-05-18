@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# SSH config parsing
+hosts=$(grep -E "^Host " ~/.ssh/known_hosts | awk '{print $2}')
+
+if [ -z "$ROFI_RETV" ]; then
+    echo "$hosts"
+elif [ "$ROFI_RETV" -eq 1 ]; then
+    ~/.local/bin/rofi-ssh-tmux.sh "$1"
+fi
