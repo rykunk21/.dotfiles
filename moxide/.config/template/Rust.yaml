@@ -1,0 +1,11 @@
+name: Rust
+
+windows:
+  - name: Neovim
+    panes:
+      - nvim
+  - name: Cargo
+    layout: even-horizontal
+    panes:
+      - cargo build
+      - cargo clippy
