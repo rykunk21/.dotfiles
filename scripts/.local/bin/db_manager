@@ -1,0 +1,13 @@
+#!/bin/bash
+DATA_DIR=~/data
+# List the db directories  
+DBS=$(find $DATA_DIR -mindepth 1 -maxdepth 1 -type d -exec basename {} \;)
+# Use rofi to pick one
+DB=$(echo "$DBS" | rofi -dmenu -p "Select DB")
+# If user cancelled
+[ -z "$DB" ] && exit 0
+
+cd "$DATA_DIR/$DB"
+echo "DATA_DIR is: $DATA_DIR/$DB"  # Add this debug line
+echo "Starting $DB..."
+docker-compose --profile "$DB" up -d

@@ -38,7 +38,7 @@ if [[ "$layout" == 'NO' ]]; then
 	option_6=" Twitter"
 else
 	option_1=""
-	option_2=""
+	option_2="\x00icon\x1f$HOME/.local/share/applications/icons/notion.svg"
 	option_3=""
 	option_4=""
 	option_5=""
@@ -48,13 +48,14 @@ fi
 # Rofi CMD
 rofi_cmd() {
 	rofi -theme-str "listview {columns: $list_col; lines: $list_row;}" \
-		-theme-str 'textbox-prompt-colon {str: "";}' \
+		-theme-str 'textbox-prompt-colon {str: "";}' \
 		-theme-str "element-text {font: \"$efonts\";}" \
 		-dmenu \
 		-p "$prompt" \
 		-mesg "$mesg" \
 		-markup-rows \
-		-theme ${theme}
+		-theme ${theme} 2>&1
+
 }
 
 # Pass variables to rofi dmenu
@@ -67,7 +68,7 @@ run_cmd() {
 	if [[ "$1" == '--opt1' ]]; then
 		xdg-open 'https://www.google.com/'
 	elif [[ "$1" == '--opt2' ]]; then
-		xdg-open 'https://mail.google.com/'
+		xdg-open 'https://www.mail.notion.so/inbox'
 	elif [[ "$1" == '--opt3' ]]; then
 		xdg-open 'https://www.youtube.com/'
 	elif [[ "$1" == '--opt4' ]]; then

@@ -12,8 +12,21 @@ export OLLAMA_HOST=192.168.0.75
 PATH=$PATH:/home/admin/.surrealdb
 PATH=$PATH:/home/admin/.local/bin
 
-# Custom command aliases
-alias nfzf='selected=$(fzf --preview="bat --color=always --style=numbers --line-range :500 {}"); if [ -d "$selected" ]; then cd "$selected" && nvim .; else cd "$(dirname "$selected")" && nvim "$(basename "$selected")"; fi'
+
+alias nfzf='selected=$(fzf --preview="bat --color=always --style=numbers --line-range :500 {}"); \
+if [ -d "$selected" ]; then \
+  cd "$selected" && nvim .; \
+else \
+  repos_dir="$HOME/repos"; \
+  if [[ "$selected" == "$repos_dir"* ]]; then \
+    # Extract the part after repos/, the child dir
+    relative_path="${selected#$repos_dir/}"; \
+    child_dir="${relative_path%%/*}"; \
+    cd "$repos_dir/$child_dir" && nvim "$relative_path"; \
+  else \
+    cd "$(dirname "$selected")" && nvim "$(basename "$selected")"; \
+  fi; \
+fi'
 
 alias scandisk='ncdu ~'
 

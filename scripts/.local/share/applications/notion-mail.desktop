@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=Notion Mail
+Icon=~/.dotfiles/scripts/applications/icons/notion.svg
+Type=Application
+Exec=xdg-open https://mail.notion.so/
+
