@@ -11,7 +11,7 @@ return {
 		config = function()
 			require("mason-lspconfig").setup {
 				ensure_installed = {
-					"lua_ls", "rust_analyzer"
+					"lua_ls", "rust_analyzer", "pyright"
 				}
 			}
 		end
@@ -22,12 +22,21 @@ return {
 			local lspconfig = require("lspconfig")
 			lspconfig.lua_ls.setup {}
 			lspconfig.rust_analyzer.setup {}
+			lspconfig.pyright.setup {}
 
+			-- Set up keybindings
 			vim.keymap.set('n', 'K', vim.lsp.buf.hover, {})
 			vim.keymap.set('n', '<leader>ca', vim.lsp.buf.code_action, {})
 			vim.keymap.set('n', 'gd', vim.lsp.buf.definition, {})
 			vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, {})
 
+			-- Configure diagnostic signs
+			vim.diagnostic.config({
+				virtual_text = true, -- shows inline text
+				underline = true, -- enables squiggles
+				signs = true,    -- symbols in gutter
+				severity_sort = true,
+			})
 			-- Add format keybinding
 			vim.keymap.set('n', '<leader>f', function()
 				vim.lsp.buf.format({ async = true })
