@@ -5,7 +5,7 @@
 eval "$(starship init bash)"
 # Add relevant enviornemnt variables
 export XDG_CONFIG_HOME="$HOME/.config"
-export OLLAMA_HOST=192.168.0.75
+export OLLAMA_HOST=192.168.0.74
 
 
 # Add surrealdb to path
@@ -67,7 +67,7 @@ unset __conda_setup
 # <<< conda initialize <<<
 
 
-neofetch
+fastfetch
 
 
 
