@@ -11,7 +11,7 @@ export OLLAMA_HOST=192.168.0.74
 # Add surrealdb to path
 PATH=$PATH:/home/admin/.surrealdb
 PATH=$PATH:/home/admin/.local/bin
-
+export PATH="$HOME/.local/opt/Kiro/bin:$PATH"
 
 alias nfzf='selected=$(fzf --preview="bat --color=always --style=numbers --line-range :500 {}"); \
 if [ -d "$selected" ]; then \
