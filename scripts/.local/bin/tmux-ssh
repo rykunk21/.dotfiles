@@ -1,10 +1,18 @@
-#!/bin/bash
 
-# SSH config parsing
-hosts=$(grep -E "^Host " ~/.ssh/known_hosts | awk '{print $2}')
+#!/usr/bin/env bash
 
-if [ -z "$ROFI_RETV" ]; then
-    echo "$hosts"
-elif [ "$ROFI_RETV" -eq 1 ]; then
-    ~/.local/bin/rofi-ssh-tmux.sh "$1"
+HOST="$1"
+PORT="$2"
+
+SESSION="ssh"
+
+# Create session with first SSH window if missing
+if ! tmux has-session -t "$SESSION" 2>/dev/null; then
+    tmux new-session -d -s "$SESSION" "ssh $HOST ${PORT:+-p $PORT}"
+else
+    tmux new-window -t "$SESSION" "ssh $HOST ${PORT:+-p $PORT}"
 fi
+
+# Attach to the session
+tmux attach-session -t "$SESSION"
+

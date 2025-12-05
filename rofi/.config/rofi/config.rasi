@@ -25,7 +25,7 @@ configuration {
 	tokenize: true;
 
 	/*---------- SSH settings ----------*/
-	ssh-client: "ssh";
+	ssh-client: "tmux-ssh";
 	ssh-command: "{terminal} -e {ssh-client} {host} [-p {port}]";
 	parse-hosts: true;
 	parse-known-hosts: true;
@@ -82,7 +82,7 @@ configuration {
 	display-filebrowser: "Files";
 
 	/*---------- Misc setting ----------*/
-	terminal: "rofi-sensible-terminal";
+	terminal: "kitty";
 	font: "Mono 12";
 	sort: false;
 	threads: 0;

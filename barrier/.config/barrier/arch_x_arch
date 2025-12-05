@@ -1,0 +1,12 @@
+section: screens
+    SERVER:
+    ADDERSTACK:
+end
+
+section: links
+    SERVER:
+        top = ADDERSTACK
+    ADDERSTACK:
+        bottom = SERVER
+end
+
