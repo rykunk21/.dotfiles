@@ -71,3 +71,7 @@ fastfetch
 
 
 
+
+# Added by flyctl installer
+export FLYCTL_INSTALL="/home/admin/.fly"
+export PATH="$FLYCTL_INSTALL/bin:$PATH"
