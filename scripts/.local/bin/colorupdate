@@ -77,8 +77,10 @@ fi
 # Update hyprpaper config
 log "Updating hyprpaper config..."
 cat > ~/.config/hypr/hyprpaper.conf << EOF 
-preload = $WAL_PATH
-wallpaper = , $WAL_PATH
+wallpaper {
+	path = $WAL_PATH
+	fit_mode = contain
+}
 EOF
 
 # Generate pywal colors
