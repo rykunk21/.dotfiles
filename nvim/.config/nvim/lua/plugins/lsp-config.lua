@@ -20,10 +20,50 @@ return {
 		"neovim/nvim-lspconfig",
 		config = function()
 			local lspconfig = require("lspconfig")
-			lspconfig.lua_ls.setup {}
-			lspconfig.rust_analyzer.setup {}
-			lspconfig.pyright.setup {}
+			vim.lsp.config("lua_ls", {
+				settings = {
+					Lua = {
+						runtime = {
+							version = "LuaJIT",
+						},
+						workspace = {
+							library = vim.api.nvim_get_runtime_file("", true),
+						},
+						telemetry = {
+							enable = false,
+						},
+					},
+				},
+			})
 
+
+			vim.lsp.config("rust_analyzer", {
+				settings = {
+					["rust-analyzer"] = {
+						cargo = {
+							allFeatures = true,
+						},
+						checkOnSave = {
+							command = "clippy",
+						},
+						procMacro = {
+							enable = true,
+						},
+					},
+				},
+			})
+
+			vim.lsp.config("pyright", {
+				settings = {
+					python = {
+						analysis = {
+							autoSearchPaths = true,
+							diagnosticMode = "openFilesOnly",
+							useLibraryCodeForTypes = true,
+						},
+					},
+				},
+			})
 			-- Set up keybindings
 			vim.keymap.set('n', 'K', vim.lsp.buf.hover, {})
 			vim.keymap.set('n', '<leader>ca', vim.lsp.buf.code_action, {})

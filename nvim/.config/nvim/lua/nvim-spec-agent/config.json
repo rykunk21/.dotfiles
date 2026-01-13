@@ -1,0 +1,30 @@
+{
+  "version": "1.0.0",
+  "created_at": "2025-12-19T17:17:57.194189188Z",
+  "updated_at": "2025-12-19T17:17:57.194269713Z",
+  "ui": {
+    "window_width_ratio": 0.8,
+    "window_height_ratio": 0.6,
+    "border_style": "rounded",
+    "theme": "default"
+  },
+  "agent": {
+    "auto_approve_safe_commands": false,
+    "command_timeout_seconds": 30,
+    "max_conversation_history": 1000
+  },
+  "spec": {
+    "default_spec_directory": ".kiro/specs",
+    "auto_save_interval_seconds": 30,
+    "property_test_iterations": 100,
+    "enable_property_testing": true,
+    "spec_template_directory": null
+  },
+  "persistence": {
+    "max_conversations": 100,
+    "conversation_retention_days": 30,
+    "auto_archive_enabled": true,
+    "backup_enabled": true,
+    "backup_interval_hours": 24
+  }
+}
