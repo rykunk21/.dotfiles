@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+CONFIG="$HOME/.config/waybar/config.jsonc"
+sed "s|__PRIMARY_MONITOR__|${PRIMARY_MONITOR:-eDP-1}|" \
+    "$HOME/.config/waybar/config.jsonc.tpl" > "$CONFIG"
+
+waybar
