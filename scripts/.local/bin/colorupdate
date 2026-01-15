@@ -78,8 +78,9 @@ fi
 log "Updating hyprpaper config..."
 cat > ~/.config/hypr/hyprpaper.conf << EOF 
 wallpaper {
+	monitor = $PRIMARY_MONITOR
 	path = $WAL_PATH
-	fit_mode = contain
+	fit_mode = cover
 }
 EOF
 
