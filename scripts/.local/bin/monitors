@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ENV_DIR="$HOME/.config/uwsm"
+ENV_FILE="$ENV_DIR/env"
+
+# Ensure directory and file exist
+mkdir -p "$ENV_DIR"
+touch "$ENV_FILE"
+
+# Detect primary monitor (focused)
+MONITOR=$(hyprctl monitors -j 2>/dev/null | jq -r '.[] | select(.focused).name' || true)
+
+# Fallback if detection fails
+MONITOR=${MONITOR:-eDP-1}
+
+# Overwrite env file atomically
+TMP="$(mktemp)"
+cat > "$TMP" <<EOF
+export PRIMARY_MONITOR=$MONITOR
+export RKVM_HOSTNAME=$(hostname)
+EOF
+
+mv "$TMP" "$ENV_FILE"
+
+echo "Monitors output successfully to $ENV_FILE"

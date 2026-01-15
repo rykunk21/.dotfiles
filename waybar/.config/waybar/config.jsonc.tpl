@@ -6,7 +6,7 @@
   "height": 60, 
   "layer": "top",
   "position": "top",
-  "output": "eDP-1",
+  "output": "__PRIMARY_MONITOR__",
   "spacing": 15,
   "modules-left": ["custom/launcher", "clock", "clock#date"],
   "modules-center": ["hyprland/workspaces"],

@@ -77,8 +77,11 @@ fi
 # Update hyprpaper config
 log "Updating hyprpaper config..."
 cat > ~/.config/hypr/hyprpaper.conf << EOF 
-preload = $WAL_PATH
-wallpaper = , $WAL_PATH
+wallpaper {
+	monitor = eDP-1
+	path = $WAL_PATH
+	fit_mode = cover
+}
 EOF
 
 # Generate pywal colors
