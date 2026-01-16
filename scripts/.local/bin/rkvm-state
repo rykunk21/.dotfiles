@@ -1,0 +1,36 @@
+#!/bin/bash
+# rkvm_socket_daemon.sh
+# Watches /run/rkvm/active.sock and manages Waybar visibility.
+
+SOCKET="/run/rkvm/active.sock"
+LAST=""
+
+while true; do
+    if STATE=$(cat "$SOCKET" 2>/dev/null); then
+		echo "$STATE"
+        # Socket readable
+        if [ "$STATE" = "true" ]; then
+            SHOW=true
+        else
+            SHOW=false
+        fi
+    else
+        # Socket unreadable
+        SHOW=true
+    fi
+
+    if [ "$SHOW" = true ] && [ "$LAST" != "true" ]; then
+        # Start Waybar if not running
+        pgrep waybar >/dev/null || waybar &
+        LAST=true
+    elif [ "$SHOW" = false ] && [ "$LAST" != "false" ]; then
+        # Stop Waybar if running
+        pkill waybar
+        LAST=false
+    fi
+
+    sleep 0.2
+done
+
+
+echo "EXITED.." 

@@ -1,6 +1,84 @@
 #!/usr/bin/env bash
-CONFIG="$HOME/.config/waybar/config.jsonc"
-sed "s|__PRIMARY_MONITOR__|${PRIMARY_MONITOR:-eDP-1}|" \
-    "$HOME/.config/waybar/config.jsonc.tpl" > "$CONFIG"
+set -u
 
-waybar
+SOCKET="/run/rkvm/active.sock"
+WAYBAR_CMD="waybar"
+
+LOG_TAG="launch-waybar"
+log() {
+    printf '[%s] [%s] %s\n' "$(date '+%F %T.%3N')" "$LOG_TAG" "$*" >&2
+}
+
+# -----------------------------
+# Waybar control
+# -----------------------------
+waybar_running() {
+    [[ -n "${WAYBAR_PID:-}" ]] && kill -0 "$WAYBAR_PID" 2>/dev/null
+}
+
+start_waybar() {
+    if waybar_running; then
+        return
+    fi
+    log "Starting Waybar"
+    $WAYBAR_CMD &
+    WAYBAR_PID=$!
+    log "Waybar PID=$WAYBAR_PID"
+}
+
+stop_waybar() {
+    if ! waybar_running; then
+        return
+    fi
+    log "Stopping Waybar PID=$WAYBAR_PID"
+    kill -SIGTERM "$WAYBAR_PID" 2>/dev/null
+    wait "$WAYBAR_PID" 2>/dev/null || true
+    unset WAYBAR_PID
+}
+
+# -----------------------------
+# Init
+# -----------------------------
+WAYBAR_PID=""
+LAST_STATE="unknown"
+
+log "Launcher starting"
+start_waybar
+
+# -----------------------------
+# Socket loop (streaming)
+# -----------------------------
+while true; do
+    if [[ ! -S "$SOCKET" ]]; then
+        log "Socket missing, retrying in 1s"
+        sleep 1
+        continue
+    fi
+
+    log "Connecting to rkvm socket $SOCKET"
+
+    socat - UNIX-CONNECT:"$SOCKET" | while read -r raw; do
+        raw="$(echo "$raw" | tr -d '[:space:]')"
+        log "Socket event: '$raw'"
+
+        case "$raw" in
+            *"=true"|true)
+                [[ "$LAST_STATE" != "true" ]] && log "State → true"
+                start_waybar
+                LAST_STATE="true"
+                ;;
+            *"=false"|false)
+                [[ "$LAST_STATE" != "false" ]] && log "State → false"
+                stop_waybar
+                LAST_STATE="false"
+                ;;
+            *)
+                log "Ignored unknown value"
+                ;;
+        esac
+    done
+
+    log "Socket disconnected, reconnecting…"
+    sleep 0.5
+done
+

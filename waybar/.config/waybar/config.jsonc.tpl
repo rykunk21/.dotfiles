@@ -119,13 +119,5 @@
     "format": "",
     "on-click": "~/.config/rofi/scripts/powermenu_t3",
     "tooltip": false
-},
-
-"custom/rkvm": {
-    "exec": "sh -c 'cat /run/rkvm/active.sock 2>/dev/null | grep -oE \"(true|false)\" || echo false'",
-    "interval": 1,
-    "format": " {}",
-    "tooltip": "RKVM active state"
 }
-
 }
