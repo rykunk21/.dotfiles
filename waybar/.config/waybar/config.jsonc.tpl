@@ -10,7 +10,7 @@
   "spacing": 15,
   "modules-left": ["custom/launcher", "clock", "clock#date"],
   "modules-center": ["hyprland/workspaces"],
-  "modules-right": ["pulseaudio", "network", "battery", "custom/powermenu"],
+  "modules-right": ["custom/rkvm","pulseaudio", "network", "battery", "custom/powermenu", ],
   "hyprland/workspaces": {
       "disable-scroll": true,
       "all-outputs": true,
@@ -119,5 +119,13 @@
     "format": "",
     "on-click": "~/.config/rofi/scripts/powermenu_t3",
     "tooltip": false
-  }
+},
+
+"custom/rkvm": {
+    "exec": "sh -c 'cat /run/rkvm/active.sock 2>/dev/null | grep -oE \"(true|false)\" || echo false'",
+    "interval": 1,
+    "format": " {}",
+    "tooltip": "RKVM active state"
+}
+
 }

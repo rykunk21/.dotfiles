@@ -2,6 +2,14 @@
 # ~/.bashrc
 #
 
+
+if [ -z "$WAYLAND_DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ]; then
+	if uwsm check may-start; then
+		exec uwsm start hyprland.desktop
+	fi
+fi
+
+
 eval "$(starship init bash)"
 # Add relevant enviornemnt variables
 export XDG_CONFIG_HOME="$HOME/.config"
