@@ -1,84 +1,41 @@
 #!/usr/bin/env bash
 
-## Applet: Systemd Services (with modi-style tabs and actions)
+## Applet: Systemd Services (with modi-style tabs)
 
 theme="$HOME/.config/rofi/launchers/type-1/style-9.rasi"
-
-# Handle action selection for a service
-handle_action() {
-    local type="$1"
-    local name="$2"
-    local state="${3:-unknown}"
-    
-    # Determine user flag
-    local user_flag=""
-    [ "$type" = "USER" ] && user_flag="--user"
-    
-    # Show action menu after selecting a service
-    if [[ "$state" =~ ^(running|active|run|failed)$ ]] || [ "$type" = "USER" ]; then
-        action=$(echo -e "󰐊 Start\n󰓛 Stop\n󰑐 Restart\n󰈺 Status\n󰁯 Logs" | \
-            rofi -theme-str 'window {location: center; anchor: west; x-offset: 20px; y-offset: 0px;}' \
-                -dmenu -p "$name" -mesg "Service: $name ($state)" -theme "$theme")
-    else
-        action=$(echo -e "󰐊 Start\n󰓛 Stop\n󰑐 Restart\n󰈺 Status\n󰁯 Logs\n󰑮 Enable\n󰒓 Disable" | \
-            rofi -theme-str 'window {location: center; anchor: west; x-offset: 20px; y-offset: 0px;}' \
-                -dmenu -p "$name" -mesg "Service: $name ($state)" -theme "$theme")
-    fi
-    
-    case "$action" in
-        *"Start")
-            systemctl $user_flag start "$name" && notify-send "Systemd" "Started $name"
-            ;;
-        *"Stop")
-            systemctl $user_flag stop "$name" && notify-send "Systemd" "Stopped $name"
-            ;;
-        *"Restart")
-            systemctl $user_flag restart "$name" && notify-send "Systemd" "Restarted $name"
-            ;;
-        *"Status")
-            kitty --hold sh -c "systemctl $user_flag status '$name'" 2>/dev/null &
-            ;;
-        *"Logs")
-            kitty --hold sh -c "journalctl $user_flag -u '$name' -f" 2>/dev/null &
-            ;;
-        *"Enable")
-            systemctl $user_flag enable "$name" && notify-send "Systemd" "Enabled $name"
-            ;;
-        *"Disable")
-            systemctl $user_flag disable "$name" && notify-send "Systemd" "Disabled $name"
-            ;;
-    esac
-}
+position="window { location: center; anchor: west; x-offset: 20px; y-offset: 0px; }"
 
 # Create modi scripts
-cat > /tmp/services-all.sh << 'EOF'
+mkdir -p /tmp/rofi-services
+
+cat > /tmp/rofi-services/all.sh << 'MODI'
 #!/bin/bash
-systemctl --failed --no-pager --no-legend 2>/dev/null | awk '{print "FAIL: " $1 " (failed)"}' | head -10
-systemctl --user list-units --type=service --no-pager --no-legend 2>/dev/null | awk '{print "USER: " $1}' | head -20
-systemctl list-units --type=service --no-pager --no-legend 2>/dev/null | awk '{print "SYS: " $1}' | head -25
-EOF
+systemctl --failed --no-pager --no-legend 2>/dev/null | awk '{print "[FAIL] " $1}' | head -10
+systemctl --user list-units --type=service --no-pager --no-legend 2>/dev/null | awk '{print "[USER] " $1}' | head -20
+systemctl list-units --type=service --no-pager --no-legend 2>/dev/null | awk '{print "[SYS]  " $1}' | head -25
+MODI
 
-cat > /tmp/services-failed.sh << 'EOF'
+cat > /tmp/rofi-services/failed.sh << 'MODI'
 #!/bin/bash
-systemctl --failed --no-pager --no-legend 2>/dev/null | awk '{print "FAIL: " $1 " (failed)"}'
-EOF
+systemctl --failed --no-pager --no-legend 2>/dev/null | awk '{print "[FAIL] " $1}'
+MODI
 
-cat > /tmp/services-user.sh << 'EOF'
+cat > /tmp/rofi-services/user.sh << 'MODI'
 #!/bin/bash
-systemctl --user list-units --type=service --no-pager --no-legend 2>/dev/null | awk '{print "USER: " $1 " | " $3}'
-EOF
+systemctl --user list-units --type=service --no-pager --no-legend 2>/dev/null | awk '{print "[USER] " $1}'
+MODI
 
-cat > /tmp/services-system.sh << 'EOF'
+cat > /tmp/rofi-services/system.sh << 'MODI'
 #!/bin/bash
-systemctl list-units --type=service --no-pager --no-legend 2>/dev/null | awk '{print "SYS: " $1 " | " $3}'
-EOF
+systemctl list-units --type=service --no-pager --no-legend 2>/dev/null | awk '{print "[SYS]  " $1}'
+MODI
 
-chmod +x /tmp/services-*.sh
+chmod +x /tmp/rofi-services/*.sh
 
-# Run rofi with modi (vertically centered, left side)
+# Run rofi with modi
 result=$(rofi \
-    -theme-str 'window {location: center; anchor: west; x-offset: 20px; y-offset: 0px;}' \
-    -modi "all:/tmp/services-all.sh,failed:/tmp/services-failed.sh,user:/tmp/services-user.sh,system:/tmp/services-system.sh" \
+    -theme-str "$position" \
+    -modi "all:/tmp/rofi-services/all.sh,failed:/tmp/rofi-services/failed.sh,user:/tmp/rofi-services/user.sh,system:/tmp/rofi-services/system.sh" \
     -show all \
     -theme "$theme" \
     -p "Services")
@@ -86,12 +43,47 @@ result=$(rofi \
 [ -z "$result" ] && exit 0
 
 # Parse result
-type=$(echo "$result" | cut -d: -f1 | tr -d ' ')
-name=$(echo "$result" | cut -d: -f2 | cut -d'|' -f1 | tr -d ' ' | awk '{print $1}')
-state=$(echo "$result" | cut -d'|' -f2 | tr -d ' ' | sed 's/[()]//g')
+prefix=$(echo "$result" | grep -o '^\[\w\+\]' | tr -d '[]')
+name=$(echo "$result" | sed 's/^\[\w\+\] //')
+[ -z "$prefix" ] || [ -z "$name" ] && exit 0
 
-# If name extraction failed, try alternative parsing
-[ -z "$name" ] && name=$(echo "$result" | sed "s/^$type: //" | awk '{print $1}')
+# Determine user flag
+user_flag=""
+[ "$prefix" = "USER" ] && user_flag="--user"
 
-# Show action menu
-handle_action "$type" "$name" "$state"
+# Get current state
+if [ "$prefix" = "USER" ]; then
+    state=$(systemctl --user is-active "$name" 2>/dev/null)
+else
+    state=$(systemctl is-active "$name" 2>/dev/null)
+fi
+
+# Action menu
+action=$(echo -e "󰐊 Start\n󰓛 Stop\n󰑐 Restart\n󰈺 Status\n󰁯 Logs\n󰑮 Enable\n󰒓 Disable" | \
+    rofi -theme-str "$position" -dmenu -p "$name" -mesg "State: $state" -theme "$theme")
+
+[ -z "$action" ] && exit 0
+
+case "$action" in
+    *"Start")
+        systemctl $user_flag start "$name" && notify-send "Systemd" "Started $name"
+        ;;
+    *"Stop")
+        systemctl $user_flag stop "$name" && notify-send "Systemd" "Stopped $name"
+        ;;
+    *"Restart")
+        systemctl $user_flag restart "$name" && notify-send "Systemd" "Restarted $name"
+        ;;
+    *"Status")
+        kitty --hold sh -c "systemctl $user_flag status '$name'" 2>/dev/null &
+        ;;
+    *"Logs")
+        kitty --hold sh -c "journalctl $user_flag -u '$name' -f" 2>/dev/null &
+        ;;
+    *"Enable")
+        systemctl $user_flag enable "$name" && notify-send "Systemd" "Enabled $name"
+        ;;
+    *"Disable")
+        systemctl $user_flag disable "$name" && notify-send "Systemd" "Disabled $name"
+        ;;
+esac
