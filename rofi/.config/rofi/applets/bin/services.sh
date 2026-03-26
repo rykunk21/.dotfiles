@@ -1,17 +1,8 @@
 #!/usr/bin/env bash
 
-## Applet: Systemd Services (with modi-style tabs)
+## Applet: Systemd Services (with modi-style tabs and actions)
 
 theme="$HOME/.config/rofi/launchers/type-1/style-9.rasi"
-
-# Get service info from a selection line
-parse_service() {
-    local line="$1"
-    local type=$(echo "$line" | cut -d: -f1)
-    local name=$(echo "$line" | cut -d: -f2)
-    local state=$(echo "$line" | cut -d: -f3)
-    echo "$type:$name:$state"
-}
 
 # Handle action selection for a service
 handle_action() {
@@ -23,15 +14,15 @@ handle_action() {
     local user_flag=""
     [ "$type" = "USER" ] && user_flag="--user"
     
-    # Determine available actions based on state
-    if [[ "$state" =~ ^(running|active|run)$ ]] || [ "$type" = "USER" ]; then
-        action=$(echo -e "󰓛 Stop\n󰑐 Restart\n󰈺 Status\n󰁯 Logs" | \
-            rofi -theme-str 'window {location: north west; anchor: north west; x-offset: 20px; y-offset: 50px;}' \
-                -dmenu -p "$name" -mesg "Service is ${state:-running} — choose action" -theme "$theme")
+    # Show action menu after selecting a service
+    if [[ "$state" =~ ^(running|active|run|failed)$ ]] || [ "$type" = "USER" ]; then
+        action=$(echo -e "󰐊 Start\n󰓛 Stop\n󰑐 Restart\n󰈺 Status\n󰁯 Logs" | \
+            rofi -theme-str 'window {location: center; anchor: west; x-offset: 20px; y-offset: 0px;}' \
+                -dmenu -p "$name" -mesg "Service: $name ($state)" -theme "$theme")
     else
-        action=$(echo -e "󰐊 Start\n󰓛 Stop\n󰑐 Restart\n󰈺 Status\n󰑮 Enable\n󰒓 Disable" | \
-            rofi -theme-str 'window {location: north west; anchor: north west; x-offset: 20px; y-offset: 50px;}' \
-                -dmenu -p "$name" -mesg "Service is ${state:-stopped} — choose action" -theme "$theme")
+        action=$(echo -e "󰐊 Start\n󰓛 Stop\n󰑐 Restart\n󰈺 Status\n󰁯 Logs\n󰑮 Enable\n󰒓 Disable" | \
+            rofi -theme-str 'window {location: center; anchor: west; x-offset: 20px; y-offset: 0px;}' \
+                -dmenu -p "$name" -mesg "Service: $name ($state)" -theme "$theme")
     fi
     
     case "$action" in
@@ -59,21 +50,17 @@ handle_action() {
     esac
 }
 
-# Export functions for use in modi scripts
-export -f handle_action
-export theme
-
-# Create modi scripts inline
+# Create modi scripts
 cat > /tmp/services-all.sh << 'EOF'
 #!/bin/bash
 systemctl --failed --no-pager --no-legend 2>/dev/null | awk '{print "FAIL: " $1 " (failed)"}' | head -10
-systemctl --user list-units --type=service --no-pager --no-legend 2>/dev/null | awk '{print "USER: " $1}' | head -15
-systemctl list-units --type=service --no-pager --no-legend 2>/dev/null | awk '{print "SYS: " $1}' | head -20
+systemctl --user list-units --type=service --no-pager --no-legend 2>/dev/null | awk '{print "USER: " $1}' | head -20
+systemctl list-units --type=service --no-pager --no-legend 2>/dev/null | awk '{print "SYS: " $1}' | head -25
 EOF
 
 cat > /tmp/services-failed.sh << 'EOF'
 #!/bin/bash
-systemctl --failed --no-pager --no-legend 2>/dev/null | awk '{print "FAIL: " $1 " | " $2}'
+systemctl --failed --no-pager --no-legend 2>/dev/null | awk '{print "FAIL: " $1 " (failed)"}'
 EOF
 
 cat > /tmp/services-user.sh << 'EOF'
@@ -88,9 +75,9 @@ EOF
 
 chmod +x /tmp/services-*.sh
 
-# Run rofi with modi
+# Run rofi with modi (vertically centered, left side)
 result=$(rofi \
-    -theme-str 'window {location: north west; anchor: north west; x-offset: 20px; y-offset: 50px;}' \
+    -theme-str 'window {location: center; anchor: west; x-offset: 20px; y-offset: 0px;}' \
     -modi "all:/tmp/services-all.sh,failed:/tmp/services-failed.sh,user:/tmp/services-user.sh,system:/tmp/services-system.sh" \
     -show all \
     -theme "$theme" \
@@ -98,9 +85,13 @@ result=$(rofi \
 
 [ -z "$result" ] && exit 0
 
-# Parse result and handle action
+# Parse result
 type=$(echo "$result" | cut -d: -f1 | tr -d ' ')
-name=$(echo "$result" | cut -d: -f2 | cut -d'|' -f1 | tr -d ' ')
-state=$(echo "$result" | cut -d'|' -f2 | tr -d ' ')
+name=$(echo "$result" | cut -d: -f2 | cut -d'|' -f1 | tr -d ' ' | awk '{print $1}')
+state=$(echo "$result" | cut -d'|' -f2 | tr -d ' ' | sed 's/[()]//g')
 
+# If name extraction failed, try alternative parsing
+[ -z "$name" ] && name=$(echo "$result" | sed "s/^$type: //" | awk '{print $1}')
+
+# Show action menu
 handle_action "$type" "$name" "$state"
