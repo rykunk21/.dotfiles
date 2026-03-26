@@ -23,7 +23,8 @@ list_repos() {
 }
 
 rofi_cmd() {
-    rofi -dmenu \
+    rofi -theme-str 'window {location: north west; anchor: north west; x-offset: 20px; y-offset: 50px;}' \
+        -dmenu \
         -p "$prompt" \
         -mesg "$mesg" \
         -theme "$theme"
