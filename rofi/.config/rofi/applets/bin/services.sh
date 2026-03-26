@@ -33,7 +33,7 @@ get_services() {
 
 # Rofi CMD
 rofi_cmd() {
-	rofi -theme-str 'textbox-prompt-colon {str: "";} listview {lines: 10;}' \
+	rofi -theme-str 'window {width: 600px;} listview {lines: 12;}' \
 		-dmenu \
 		-p "$prompt" \
 		-mesg "$mesg" \

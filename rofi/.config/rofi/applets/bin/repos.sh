@@ -28,7 +28,7 @@ list_repos() {
 }
 
 rofi_cmd() {
-	rofi -theme-str 'textbox-prompt-colon {str: "";} listview {lines: 8;}' \
+	rofi -theme-str 'window {width: 600px;} listview {lines: 10;}' \
 		-dmenu \
 		-p "$prompt" \
 		-mesg "$mesg" \
