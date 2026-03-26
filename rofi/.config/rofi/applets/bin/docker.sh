@@ -25,7 +25,7 @@ list_containers() {
 }
 
 rofi_cmd() {
-    rofi -theme-str 'window {location: north west; anchor: north west; x-offset: 20px; y-offset: 50px;}' \
+    rofi -theme-str 'window {location: north west; anchor: north west; x-offset: 20px; y-offset: 50px; listview {lines: 10;}}' \
         -dmenu \
         -p "$prompt" \
         -mesg "$mesg" \

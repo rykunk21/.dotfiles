@@ -1,147 +1,38 @@
 #!/usr/bin/env bash
 
-## Applet: Systemd Services (with inline actions, left-positioned)
+## Applet: Systemd Services (with modi-style tabs)
 
-prompt='Services'
-mesg="Systemd Services — Select to manage"
 theme="$HOME/.config/rofi/launchers/type-1/style-9.rasi"
 
-# Get systemd services (increased limits, include loaded/enabled)
-get_services() {
-    echo "[ALL] Show all services"
-    echo "[FAILED] Show failed services"
-    echo "[USER] Show user services"
-    echo "[SYSTEM] Show system services"
+# Get service info from a selection line
+parse_service() {
+    local line="$1"
+    local type=$(echo "$line" | cut -d: -f1)
+    local name=$(echo "$line" | cut -d: -f2)
+    local state=$(echo "$line" | cut -d: -f3)
+    echo "$type:$name:$state"
 }
 
-get_all_services() {
-    # Failed services
-    systemctl --failed --no-pager --no-legend 2>/dev/null | awk '{print "FAIL:sys:" $1}' | head -10
+# Handle action selection for a service
+handle_action() {
+    local type="$1"
+    local name="$2"
+    local state="${3:-unknown}"
     
-    # All user services (not just running)
-    systemctl --user list-units --type=service --no-pager --no-legend 2>/dev/null | \
-        awk '{print "USER:" $3 ":" $1}' | head -15
+    # Determine user flag
+    local user_flag=""
+    [ "$type" = "USER" ] && user_flag="--user"
     
-    # All system services (not just running)
-    systemctl list-units --type=service --no-pager --no-legend 2>/dev/null | \
-        awk '{print "SYS:" $3 ":" $1}' | head -20
-}
-
-get_failed_services() {
-    systemctl --failed --no-pager --no-legend 2>/dev/null | awk '{print "FAIL:sys:" $1}'
-}
-
-get_user_services() {
-    systemctl --user list-units --type=service --no-pager --no-legend 2>/dev/null | \
-        awk '{print "USER:" $3 ":" $1}'
-}
-
-get_system_services() {
-    systemctl list-units --type=service --no-pager --no-legend 2>/dev/null | \
-        awk '{print "SYS:" $3 ":" $1}' | head -30
-}
-
-rofi_menu() {
-    rofi -theme-str 'window {location: north west; anchor: north west; x-offset: 20px; y-offset: 50px;}' \
-        -dmenu \
-        -p "$1" \
-        -mesg "$2" \
-        -theme "$theme"
-}
-
-# Show category selector first
-category=$(get_services | rofi_menu "$prompt" "$mesg")
-[ -z "$category" ] && exit 0
-
-# Get services based on category
-case "$category" in
-    *"ALL"*)
-        service_line=$(get_all_services | rofi_menu "$prompt" "All services")
-        ;;
-    *"FAILED"*)
-        service_line=$(get_failed_services | rofi_menu "$prompt" "Failed services")
-        ;;
-    *"USER"*)
-        service_line=$(get_user_services | rofi_menu "$prompt" "User services")
-        ;;
-    *"SYSTEM"*)
-        service_line=$(get_system_services | rofi_menu "$prompt" "System services")
-        ;;
-    *)
-        exit 0
-        ;;
-esac
-
-[ -z "$service_line" ] && exit 0
-
-# Parse selection
-type=$(echo "$service_line" | cut -d: -f1)
-state=$(echo "$service_line" | cut -d: -f2)
-name=$(echo "$service_line" | cut -d: -f3)
-
-# Quick actions for common services
-if [[ "$name" =~ ^(networkmanager|NetworkManager|bluetooth|pipewire|pipewire-pulse|rkvm-server)$ ]]; then
-    quick=$(echo -e "Manage with menu\nQuick: Restart\nQuick: Stop" | rofi_menu "$name" "Quick actions available")
-    
-    case "$quick" in
-        *"Restart")
-            if [ "$name" = "pipewire" ] || [ "$name" = "pipewire-pulse" ]; then
-                systemctl --user restart pipewire pipewire-pulse && notify-send "Systemd" "Pipewire restarted"
-            elif [ "$type" = "USER" ]; then
-                systemctl --user restart "$name" && notify-send "Systemd" "Restarted $name"
-            else
-                systemctl restart "$name" && notify-send "Systemd" "Restarted $name"
-            fi
-            exit 0
-            ;;
-        *"Stop")
-            if [ "$type" = "USER" ]; then
-                systemctl --user stop "$name" && notify-send "Systemd" "Stopped $name"
-            else
-                systemctl stop "$name" && notify-send "Systemd" "Stopped $name"
-            fi
-            exit 0
-            ;;
-    esac
-fi
-
-# Determine user flag
-if [ "$type" = "USER" ]; then
-    user_flag="--user"
-elif [ "$type" = "FAIL" ]; then
-    user_flag=""
-else
-    user_flag=""
-fi
-
-# Sanitize state for display
-if [[ "$state" =~ ^(run|running|active)$ ]]; then
-    current_state="running"
-else
-    current_state="$state"
-fi
-
-# Show action menu inline
-if [ "$current_state" = "running" ] || [ "$current_state" = "active" ]; then
-    action=$(echo -e "󰓛 Stop\n󰑐 Restart\n󰈺 Status\n󰁯 Logs" | rofi_menu "$name" "Service is $current_state — choose action")
-    
-    case "$action" in
-        *"Stop")
-            systemctl $user_flag stop "$name" && notify-send "Systemd" "Stopped $name"
-            ;;
-        *"Restart")
-            systemctl $user_flag restart "$name" && notify-send "Systemd" "Restarted $name"
-            ;;
-        *"Status")
-            kitty --hold sh -c "systemctl $user_flag status '$name'" 2>/dev/null &
-            ;;
-        *"Logs")
-            kitty --hold sh -c "journalctl $user_flag -u '$name' -f" 2>/dev/null &
-            ;;
-    esac
-else
-    # Failed or stopped service
-    action=$(echo -e "󰐊 Start\n󰓛 Stop\n󰑐 Restart\n󰈺 Status\n󰑮 Enable\n󰒓 Disable" | rofi_menu "$name" "Service is $current_state — choose action")
+    # Determine available actions based on state
+    if [[ "$state" =~ ^(running|active|run)$ ]] || [ "$type" = "USER" ]; then
+        action=$(echo -e "󰓛 Stop\n󰑐 Restart\n󰈺 Status\n󰁯 Logs" | \
+            rofi -theme-str 'window {location: north west; anchor: north west; x-offset: 20px; y-offset: 50px;}' \
+                -dmenu -p "$name" -mesg "Service is ${state:-running} — choose action" -theme "$theme")
+    else
+        action=$(echo -e "󰐊 Start\n󰓛 Stop\n󰑐 Restart\n󰈺 Status\n󰑮 Enable\n󰒓 Disable" | \
+            rofi -theme-str 'window {location: north west; anchor: north west; x-offset: 20px; y-offset: 50px;}' \
+                -dmenu -p "$name" -mesg "Service is ${state:-stopped} — choose action" -theme "$theme")
+    fi
     
     case "$action" in
         *"Start")
@@ -156,6 +47,9 @@ else
         *"Status")
             kitty --hold sh -c "systemctl $user_flag status '$name'" 2>/dev/null &
             ;;
+        *"Logs")
+            kitty --hold sh -c "journalctl $user_flag -u '$name' -f" 2>/dev/null &
+            ;;
         *"Enable")
             systemctl $user_flag enable "$name" && notify-send "Systemd" "Enabled $name"
             ;;
@@ -163,4 +57,50 @@ else
             systemctl $user_flag disable "$name" && notify-send "Systemd" "Disabled $name"
             ;;
     esac
-fi
+}
+
+# Export functions for use in modi scripts
+export -f handle_action
+export theme
+
+# Create modi scripts inline
+cat > /tmp/services-all.sh << 'EOF'
+#!/bin/bash
+systemctl --failed --no-pager --no-legend 2>/dev/null | awk '{print "FAIL: " $1 " (failed)"}' | head -10
+systemctl --user list-units --type=service --no-pager --no-legend 2>/dev/null | awk '{print "USER: " $1}' | head -15
+systemctl list-units --type=service --no-pager --no-legend 2>/dev/null | awk '{print "SYS: " $1}' | head -20
+EOF
+
+cat > /tmp/services-failed.sh << 'EOF'
+#!/bin/bash
+systemctl --failed --no-pager --no-legend 2>/dev/null | awk '{print "FAIL: " $1 " | " $2}'
+EOF
+
+cat > /tmp/services-user.sh << 'EOF'
+#!/bin/bash
+systemctl --user list-units --type=service --no-pager --no-legend 2>/dev/null | awk '{print "USER: " $1 " | " $3}'
+EOF
+
+cat > /tmp/services-system.sh << 'EOF'
+#!/bin/bash
+systemctl list-units --type=service --no-pager --no-legend 2>/dev/null | awk '{print "SYS: " $1 " | " $3}'
+EOF
+
+chmod +x /tmp/services-*.sh
+
+# Run rofi with modi
+result=$(rofi \
+    -theme-str 'window {location: north west; anchor: north west; x-offset: 20px; y-offset: 50px;}' \
+    -modi "all:/tmp/services-all.sh,failed:/tmp/services-failed.sh,user:/tmp/services-user.sh,system:/tmp/services-system.sh" \
+    -show all \
+    -theme "$theme" \
+    -p "Services")
+
+[ -z "$result" ] && exit 0
+
+# Parse result and handle action
+type=$(echo "$result" | cut -d: -f1 | tr -d ' ')
+name=$(echo "$result" | cut -d: -f2 | cut -d'|' -f1 | tr -d ' ')
+state=$(echo "$result" | cut -d'|' -f2 | tr -d ' ')
+
+handle_action "$type" "$name" "$state"
