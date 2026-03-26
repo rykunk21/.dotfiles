@@ -31,11 +31,11 @@ list_containers() {
 }
 
 rofi_cmd() {
-	rofi -theme-str 'window {width: 600px;} listview {lines: 10;}' \
+	rofi -theme-str 'window {width: 1024px;} listview {lines: 10;}' \
 		-dmenu \
 		-p "$prompt" \
 		-mesg "$mesg" \
-		-theme "$HOME/.config/rofi/applets/type-1/style-1.rasi"
+		-theme "$HOME/.config/rofi/launchers/type-1/style-9.rasi"
 }
 
 chosen="$(list_containers | rofi_cmd)"

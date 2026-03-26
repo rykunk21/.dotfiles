@@ -33,12 +33,12 @@ get_services() {
 
 # Rofi CMD
 rofi_cmd() {
-	rofi -theme-str 'window {width: 600px;} listview {lines: 12;}' \
+	rofi -theme-str 'window {width: 1024px;} listview {lines: 12;}' \
 		-dmenu \
 		-p "$prompt" \
 		-mesg "$mesg" \
 		-no-custom \
-		-theme "$HOME/.config/rofi/applets/type-1/style-1.rasi"
+		-theme "$HOME/.config/rofi/launchers/type-1/style-9.rasi"
 }
 
 # Menu

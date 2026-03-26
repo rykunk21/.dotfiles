@@ -2,9 +2,6 @@
 
 ## Applet: Git Repositories
 
-source "$HOME"/.config/rofi/applets/shared/theme.bash
-theme="$type/$style"
-
 prompt='Repos'
 mesg="Quickly open or manage git repos"
 
@@ -23,16 +20,16 @@ list_repos() {
     done | head -15
     
     echo "---"
-    echo "�  Open repos folder"
+    echo "  Open repos folder"
     echo "  Clone new repo"
 }
 
 rofi_cmd() {
-	rofi -theme-str 'window {width: 600px;} listview {lines: 10;}' \
+	rofi -theme-str 'window {width: 1024px;} listview {lines: 10;}' \
 		-dmenu \
 		-p "$prompt" \
 		-mesg "$mesg" \
-		-theme "$HOME/.config/rofi/applets/type-1/style-1.rasi"
+		-theme "$HOME/.config/rofi/launchers/type-1/style-9.rasi"
 }
 
 chosen="$(list_repos | rofi_cmd)"
@@ -43,26 +40,16 @@ case "$chosen" in
         thunar "$REPOS_DIR" &
         ;;
     "Clone new repo")
-        url=$(rofi -dmenu -p "Git URL" -theme ${theme})
+        url=$(rofi -dmenu -p "Git URL" -theme "$HOME/.config/rofi/launchers/type-1/style-9.rasi")
         [ -n "$url" ] && kitty --hold -e git clone "$url" "$REPOS_DIR"/$(basename "$url" .git) &
         ;;
     *)
         # Extract repo name
         name="${chosen#* }"  # Remove status icon
-        name="${name% (*}" # Remove branch
+        name="${name% (*}"   # Remove branch
         repo_path="$REPOS_DIR/$name"
         
-        # Submenu for repo
-        action=$(echo -e "󰘐  Open in Terminal\n󰨊  Open in Editor\n󰊢  Open in File Manager\n---\n  Status\n  Pull\n  Push" | \
-            rofi -dmenu -p "$name" -theme ${theme})
-        
-        case "$action" in
-            "Open in Terminal") kitty -d "$repo_path" & ;;
-            "Open in Editor") codium "$repo_path" & ;;
-            "Open in File Manager") thunar "$repo_path" & ;;
-            "Status") kitty --hold -d "$repo_path" -e git status & ;;
-            "Pull") kitty --hold -d "$repo_path" -e git pull & ;;
-            "Push") kitty --hold -d "$repo_path" -e git push & ;;
-        esac
+        # Open in tmux with nvim
+        kitty -e bash -c "cd '$repo_path' && tmux new-session -A -s '$name' -n 'nvim' 'nvim .'" &
         ;;
 esac
