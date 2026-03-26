@@ -5,7 +5,7 @@
 prompt='Repos'
 mesg="Quickly open or manage git repos"
 REPOS_DIR="$HOME/repos"
-theme="$HOME/.config/rofi/applets/shared/applet-theme.rasi"
+theme="$HOME/.config/rofi/launchers/type-1/style-9.rasi"
 
 list_repos() {
     find "$REPOS_DIR" -maxdepth 2 -name ".git" -type d -exec dirname {} \; 2>/dev/null | \

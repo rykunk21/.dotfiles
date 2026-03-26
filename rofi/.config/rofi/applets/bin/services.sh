@@ -4,7 +4,7 @@
 
 prompt='Services'
 mesg="Systemd Services — Select to manage"
-theme="$HOME/.config/rofi/applets/shared/applet-theme.rasi"
+theme="$HOME/.config/rofi/launchers/type-1/style-9.rasi"
 
 # Get systemd services
 get_services() {

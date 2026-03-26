@@ -4,7 +4,7 @@
 
 prompt='Docker'
 mesg="Manage Docker containers"
-theme="$HOME/.config/rofi/applets/shared/applet-theme.rasi"
+theme="$HOME/.config/rofi/launchers/type-1/style-9.rasi"
 
 list_containers() {
     echo "=== Running Containers ==="
