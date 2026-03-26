@@ -31,11 +31,11 @@ list_containers() {
 }
 
 rofi_cmd() {
-	rofi -theme-str 'textbox-prompt-colon {str: "";}' \
+	rofi -theme-str 'textbox-prompt-colon {str: "";} listview {lines: 8;}' \
 		-dmenu \
 		-p "$prompt" \
 		-mesg "$mesg" \
-		-theme ${theme}
+		-theme "$HOME/.config/rofi/applets/type-1/style-1.rasi"
 }
 
 chosen="$(list_containers | rofi_cmd)"

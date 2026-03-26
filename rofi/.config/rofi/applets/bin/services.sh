@@ -33,12 +33,12 @@ get_services() {
 
 # Rofi CMD
 rofi_cmd() {
-	rofi -theme-str 'textbox-prompt-colon {str: "";}' \
+	rofi -theme-str 'textbox-prompt-colon {str: "";} listview {lines: 10;}' \
 		-dmenu \
 		-p "$prompt" \
 		-mesg "$mesg" \
 		-no-custom \
-		-theme ${theme}
+		-theme "$HOME/.config/rofi/applets/type-1/style-1.rasi"
 }
 
 # Menu
