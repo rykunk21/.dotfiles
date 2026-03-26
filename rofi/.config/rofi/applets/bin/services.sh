@@ -1,82 +1,111 @@
 #!/usr/bin/env bash
 
-## Applet: Systemd Services
-
-# Import Current Theme
-source "$HOME"/.config/rofi/applets/shared/theme.bash
-theme="$type/$style"
+## Applet: Systemd Services (with inline actions)
 
 prompt='Services'
 mesg="Systemd Services — Select to manage"
+theme="$HOME/.config/rofi/applets/shared/applet-theme.rasi"
 
-# Get systemd services (system and user)
+# Get systemd services
 get_services() {
-    # Get failed services first
-    systemctl --failed --no-pager --no-legend 2>/dev/null | awk '{print "FAIL: " $1}' | head -5
-    echo "---"
+    echo "=== Failed Services ==="
+    systemctl --failed --no-pager --no-legend 2>/dev/null | awk '{print "FAIL:sys:" $1}' | head -5
     
-    # Get active user services
+    echo "=== User Services (running) ==="
     systemctl --user list-units --type=service --state=running --no-pager --no-legend 2>/dev/null | \
-        awk '{print "USER: " $1}' | head -10
-    echo "---"
+        awk '{print "USER:run:" $1}' | head -8
     
-    # Get active system services
+    echo "=== System Services (running) ==="
     systemctl list-units --type=service --state=running --no-pager --no-legend 2>/dev/null | \
-        awk '{print "SYS:  " $1}' | head -10
-    echo "---"
+        awk '{print "SYS:run:" $1}' | head -8
     
-    # Common services quick toggle
-    echo "󰐥  Restart NetworkManager"
-    echo "󰐥  Restart Bluetooth"
-    echo "�  Restart Pipewire"
+    echo "=== Quick Actions ==="
+    echo "QUICK:restart:networkmanager:Restart NetworkManager"
+    echo "QUICK:restart:bluetooth:Restart Bluetooth"
+    echo "QUICK:restart:pipewire:Restart Pipewire"
 }
 
-# Rofi CMD
-rofi_cmd() {
-	rofi -theme-str 'window {width: 1024px;} listview {lines: 12;}' \
-		-dmenu \
-		-p "$prompt" \
-		-mesg "$mesg" \
-		-no-custom \
-		-theme "$HOME/.config/rofi/launchers/type-1/style-9.rasi"
+rofi_menu() {
+    rofi -dmenu \
+        -p "$1" \
+        -mesg "$2" \
+        -theme "$theme"
 }
 
-# Menu
-chosen="$(get_services | rofi_cmd)"
+# Main selection
+service_line=$(get_services | rofi_menu "$prompt" "$mesg")
+[ -z "$service_line" ] && exit 0
 
-# Execute
-run_cmd() {
-    case "$1" in
-        "Restart NetworkManager")
+# Parse selection
+type=$(echo "$service_line" | cut -d: -f1)
+state=$(echo "$service_line" | cut -d: -f2)
+name=$(echo "$service_line" | cut -d: -f3)
+
+# Handle quick actions
+if [ "$type" = "QUICK" ]; then
+    case "$name" in
+        networkmanager)
             systemctl restart NetworkManager
             notify-send "Systemd" "NetworkManager restarted"
             ;;
-        "Restart Bluetooth")
+        bluetooth)
             systemctl restart bluetooth
             notify-send "Systemd" "Bluetooth restarted"
             ;;
-        "Restart Pipewire")
+        pipewire)
             systemctl --user restart pipewire pipewire-pulse
             notify-send "Systemd" "Pipewire restarted"
             ;;
     esac
-}
+    exit 0
+fi
 
-# Parse selection
-if [[ "$chosen" == *"FAIL: "* ]]; then
-    service="${chosen#*FAIL: }"
-    # Show options for failed service
-    action=$(echo -e "Status\nRestart\nStop\nDisable" | rofi -dmenu -p "$service" -theme ${theme})
-    notify-send "Systemd" "Would $action $service"
-elif [[ "$chosen" == *"USER: "* ]] || [[ "$chosen" == *"SYS:  "* ]]; then
-    service="${chosen#*: }"
-    action=$(echo -e "Status\nRestart\nStop" | rofi -dmenu -p "$service" -theme ${theme})
-    [[ "$chosen" == *"USER:"* ]] && user_flag="--user" || user_flag=""
+# Determine user flag and current state
+if [ "$type" = "USER" ]; then
+    user_flag="--user"
+    current_state="$state"
+elif [ "$type" = "FAIL" ]; then
+    user_flag=""
+    current_state="failed"
+else
+    user_flag=""
+    current_state="$state"
+fi
+
+# Show action menu inline
+if [ "$current_state" = "run" ] || [ "$current_state" = "running" ]; then
+    action=$(echo -e "󰓛 Stop\n󰑐 Restart\n󰈺 Status\n󰁯 Logs" | rofi_menu "$name" "Service is running — choose action")
+    
     case "$action" in
-        "Status") systemctl $user_flag status "$service" & ;;
-        "Restart") systemctl $user_flag restart "$service" && notify-send "Systemd" "Restarted $service" ;;
-        "Stop") systemctl $user_flag stop "$service" && notify-send "Systemd" "Stopped $service" ;;
+        *"Stop")
+            systemctl $user_flag stop "$name" && notify-send "Systemd" "Stopped $name"
+            ;;
+        *"Restart")
+            systemctl $user_flag restart "$name" && notify-send "Systemd" "Restarted $name"
+            ;;
+        *"Status")
+            kitty --hold sh -c "systemctl $user_flag status '$name'" 2>/dev/null &
+            ;;
+        *"Logs")
+            kitty --hold sh -c "journalctl $user_flag -u '$name' -f" 2>/dev/null &
+            ;;
     esac
 else
-    run_cmd "$chosen"
+    # Failed or stopped service
+    action=$(echo -e "󰐊 Start\n󰓛 Stop\n󰑐 Restart\n󰈺 Status" | rofi_menu "$name" "Service is $current_state — choose action")
+    
+    case "$action" in
+        *"Start")
+            systemctl $user_flag start "$name" && notify-send "Systemd" "Started $name"
+            ;;
+        *"Stop")
+            systemctl $user_flag stop "$name" && notify-send "Systemd" "Stopped $name"
+            ;;
+        *"Restart")
+            systemctl $user_flag restart "$name" && notify-send "Systemd" "Restarted $name"
+            ;;
+        *"Status")
+            kitty --hold sh -c "systemctl $user_flag status '$name'" 2>/dev/null &
+            ;;
+    esac
 fi
