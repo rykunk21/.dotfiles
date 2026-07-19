@@ -19,7 +19,7 @@ export OLLAMA_HOST=192.168.0.74
 # Add surrealdb to path
 PATH=$PATH:/home/admin/.surrealdb
 PATH=$PATH:/home/admin/.local/bin
-export PATH="$HOME/.local/opt/Kiro/bin:$PATH"
+PATH=$PATH:/home/admin/.local/opt/maude
 
 alias nfzf='selected=$(fzf --preview="bat --color=always --style=numbers --line-range :500 {}"); \
 if [ -d "$selected" ]; then \
@@ -59,6 +59,10 @@ alias grep='grep --color=auto'
 PS1='[\u@\h \W]\$ '
 . "$HOME/.cargo/env"
 
+
+export PATH="$HOME/.cargo/bin:$PATH"
+
+
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
 __conda_setup="$('/home/admin/.miniconda/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
@@ -75,11 +79,9 @@ unset __conda_setup
 # <<< conda initialize <<<
 
 
+
+
 fastfetch
 
 
 
-
-# Added by flyctl installer
-export FLYCTL_INSTALL="/home/admin/.fly"
-export PATH="$FLYCTL_INSTALL/bin:$PATH"

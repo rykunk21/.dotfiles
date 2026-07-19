@@ -5,12 +5,6 @@ vim.g.mapleader = " "
 vim.o.number = true
 vim.opt.scrolloff = 999
 
--- Folding
-vim.opt.foldmethod = "expr"
-vim.opt.foldexpr = "nvim_treesitter#foldexpr()"
-vim.opt.foldenable = true
-vim.opt.foldlevel = 99
-
 -- Make sure to setup `mapleader` and `maplocalleader` before
 -- loading lazy.nvim so that mappings are correct.
 -- This is also a good place to setup other settings (vim.opt)
@@ -22,3 +16,7 @@ vim.keymap.set('n', '<leader>k', ':resize -5<CR>', { noremap = true, silent = tr
 vim.keymap.set('n', '<leader>j', ':resize +5<CR>', { noremap = true, silent = true })          -- Resize down
 vim.keymap.set('n', '<leader>h', ':vertical resize +5<CR>', { noremap = true, silent = true }) -- Resize left
 vim.keymap.set('n', '<leader>l', ':vertical resize -5<CR>', { noremap = true, silent = true }) -- Resize right
+
+-- Saving
+vim.keymap.set('n', '<C-s>', ':wa<CR>', { silent = true })
+vim.keymap.set('i', '<C-s>', '<Esc>:wa<CR>', { silent = true })

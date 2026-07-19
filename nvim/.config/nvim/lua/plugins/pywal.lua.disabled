@@ -5,6 +5,5 @@ return {
 			-- Specify the path to your pywal cache directory
 			walPath = "~/.cache/wal/colors.json",
 		})
-
 	end
 }

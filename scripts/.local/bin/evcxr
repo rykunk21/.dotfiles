@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+export RUSTFLAGS="-C panic=abort"
+export EVCXR_INCREMENTAL=0
+exec evcxr_jupyter

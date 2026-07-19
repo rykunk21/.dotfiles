@@ -11,7 +11,7 @@ return {
 		config = function()
 			require("mason-lspconfig").setup {
 				ensure_installed = {
-					"lua_ls", "rust_analyzer", "pyright"
+					"lua_ls", "pyright"
 				}
 			}
 		end
@@ -31,23 +31,6 @@ return {
 						},
 						telemetry = {
 							enable = false,
-						},
-					},
-				},
-			})
-
-
-			vim.lsp.config("rust_analyzer", {
-				settings = {
-					["rust-analyzer"] = {
-						cargo = {
-							allFeatures = true,
-						},
-						checkOnSave = {
-							command = "clippy",
-						},
-						procMacro = {
-							enable = true,
 						},
 					},
 				},
