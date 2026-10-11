@@ -1,6 +1,14 @@
 #!/usr/bin/env bash
 set -u
 
+LOCKFILE="/run/user/$UID/launch-waybar.lock"
+
+exec 9>"$LOCKFILE" || exit 1
+flock -n 9 || {
+    log "Another launch-waybar instance already running, exiting"
+    exit 0
+}
+
 SOCKET="/run/rkvm/active.sock"
 WAYBAR_CMD="waybar"
 
@@ -13,27 +21,25 @@ log() {
 # Waybar control
 # -----------------------------
 waybar_running() {
-    [[ -n "${WAYBAR_PID:-}" ]] && kill -0 "$WAYBAR_PID" 2>/dev/null
+    pgrep -x waybar >/dev/null 2>&1
 }
 
 start_waybar() {
     if waybar_running; then
+        log "Waybar already running, not starting"
         return
     fi
     log "Starting Waybar"
-    $WAYBAR_CMD &
-    WAYBAR_PID=$!
-    log "Waybar PID=$WAYBAR_PID"
+    waybar &
 }
 
 stop_waybar() {
     if ! waybar_running; then
+        log "Waybar already stopped"
         return
     fi
-    log "Stopping Waybar PID=$WAYBAR_PID"
-    kill -SIGTERM "$WAYBAR_PID" 2>/dev/null
-    wait "$WAYBAR_PID" 2>/dev/null || true
-    unset WAYBAR_PID
+    log "Stopping Waybar"
+    pkill -x waybar
 }
 
 # -----------------------------

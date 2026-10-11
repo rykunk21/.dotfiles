@@ -17,6 +17,10 @@ vim.keymap.set('n', '<leader>j', ':resize +5<CR>', { noremap = true, silent = tr
 vim.keymap.set('n', '<leader>h', ':vertical resize +5<CR>', { noremap = true, silent = true }) -- Resize left
 vim.keymap.set('n', '<leader>l', ':vertical resize -5<CR>', { noremap = true, silent = true }) -- Resize right
 
+-- Navigating the tag stack
+vim.keymap.set('n', '<C-o>',':pop<CR>', {noremap = true, silent = true})
+vim.keymap.set('n', '<C-i>',':tag<CR>', {noremap = true, silent = true})
+
 -- Saving
 vim.keymap.set('n', '<C-s>', ':wa<CR>', { silent = true })
 vim.keymap.set('i', '<C-s>', '<Esc>:wa<CR>', { silent = true })

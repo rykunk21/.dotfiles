@@ -11,7 +11,7 @@ return {
 		config = function()
 			require("mason-lspconfig").setup {
 				ensure_installed = {
-					"lua_ls", "pyright"
+					"lua_ls", "pyright", "rust_analyzer"
 				}
 			}
 		end
@@ -47,6 +47,18 @@ return {
 					},
 				},
 			})
+
+			vim.lsp.config('rust_analyzer', {
+				settings = {
+					['rust-analyzer'] = {
+						cargo = {features = 'all' },
+					}
+				}
+			})
+	
+			-- enable lsp
+			vim.lsp.enable({'luia_ls', 'pyright', 'rust_analyzer'})
+
 			-- Set up keybindings
 			vim.keymap.set('n', 'K', vim.lsp.buf.hover, {})
 			vim.keymap.set('n', '<leader>ca', vim.lsp.buf.code_action, {})
