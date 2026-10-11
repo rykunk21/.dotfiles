@@ -1,8 +1,6 @@
 #
 # ~/.bashrc
 #
-
-
 if [ -z "$WAYLAND_DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ]; then
 	if uwsm check may-start; then
 		exec uwsm start hyprland.desktop
@@ -13,7 +11,7 @@ fi
 eval "$(starship init bash)"
 # Add relevant enviornemnt variables
 export XDG_CONFIG_HOME="$HOME/.config"
-export OLLAMA_HOST=192.168.0.74
+export OLLAMA_HOST=192.168.0.38
 
 
 # Add surrealdb to path
@@ -55,6 +53,7 @@ fi'
 [[ $- != *i* ]] && return
 
 alias ls='ls --color=auto'
+alias lg='lazygit'
 alias grep='grep --color=auto'
 PS1='[\u@\h \W]\$ '
 . "$HOME/.cargo/env"

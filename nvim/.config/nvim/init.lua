@@ -21,6 +21,7 @@ vim.opt.rtp:prepend(lazypath)
 vim.opt.foldmethod = "expr"
 vim.opt.foldexpr = "nvim_treesitter#foldexpr()"
 vim.opt.foldcolumn = "1"
+vim.opt.clipboard = 'unnamedplus'
 
 require("vim-options")
 require("lazy").setup("plugins")
