@@ -10,7 +10,7 @@ return {
 				window = {
 					layout = 'vertical',
 					position = 'right',
-					width = 0.3,      -- fraction of the editor width
+					width = 0.3,   -- fraction of the editor width
 					full_height = true, -- span the full editor height
 				},
 			}
@@ -21,8 +21,8 @@ return {
 					return require('codecompanion.adapters').extend('ollama', {
 						env = { url = 'http:/localhost:11434' },
 						schema = {
-							model   = { default = 'kimi-k2.6:cloud' },
-							num_ctx = { default = 16384 },
+							model = { default = 'kimi-k2.6:cloud' },
+							think = { default = false }
 						},
 					})
 				end,
