@@ -12,9 +12,33 @@ return {
 			local telescope = require("telescope")
 			local builtin = require("telescope.builtin")
 			local actions = require("telescope.actions")
+			local previewers = require("telescope.previewers")
 			-- Required directly: the extension isn't loaded yet when setup() runs,
 			-- so telescope.extensions.file_browser wouldn't exist at this point.
 			local fb_actions = require("telescope._extensions.file_browser.actions")
+
+			-- Preview: directories as a tree of their children, files via bat (or cat).
+			-- Needs `eza` (and optionally `bat`):  sudo pacman -S eza bat
+			local function fb_previewer()
+				return previewers.new_termopen_previewer({
+					get_command = function(entry)
+						local path = entry.path or entry.value
+						if vim.fn.isdirectory(path) == 1 then
+							return {
+								"eza", "--tree", "--level=3",
+								"--group-directories-first",
+								"--git-ignore", -- skips target/, node_modules/ etc. if gitignored
+								"--color=always",
+								path,
+							}
+						end
+						if vim.fn.executable("bat") == 1 then
+							return { "bat", "--style=plain", "--color=always", "--paging=never", path }
+						end
+						return { "cat", path }
+					end,
+				})
+			end
 
 			-- One setup() call for everything.
 			telescope.setup({
@@ -25,7 +49,16 @@ return {
 					file_browser = {
 						grouped = true,
 						git_status = false,
-						initial_mode = "normal", -- start in normal mode so vim motions work immediately
+						hide_parent_dir = true,
+						initial_mode = "normal",  -- start in normal mode so vim motions work immediately
+						sorting_strategy = "ascending", -- list entries from the top down
+						layout_strategy = "horizontal",
+						layout_config = {
+							prompt_position = "top", -- use "bottom" to keep the prompt below the list
+							width = 0.9,
+							height = 0.85,
+							horizontal = { preview_width = 0.6 }, -- wider preview pane
+						},
 						mappings = {
 							n = {
 								h = fb_actions.goto_parent_dir, -- default `h` is toggle_hidden
@@ -43,7 +76,12 @@ return {
 
 			-- Keymaps
 			vim.keymap.set("n", "<leader>fe", function()
-				telescope.extensions.file_browser.file_browser()
+				telescope.extensions.file_browser.file_browser({
+					previewer = fb_previewer(),
+					-- Uncomment to open in the current file's directory with it selected:
+					path = "%:p:h",
+					select_buffer = true,
+				})
 			end, { desc = "Browse files by directory" })
 
 			vim.keymap.set("n", "<leader>ff", function()
