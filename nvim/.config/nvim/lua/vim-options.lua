@@ -18,9 +18,39 @@ vim.keymap.set('n', '<leader>h', ':vertical resize +5<CR>', { noremap = true, si
 vim.keymap.set('n', '<leader>l', ':vertical resize -5<CR>', { noremap = true, silent = true }) -- Resize right
 
 -- Navigating the tag stack
-vim.keymap.set('n', '<C-o>',':pop<CR>', {noremap = true, silent = true})
-vim.keymap.set('n', '<C-i>',':tag<CR>', {noremap = true, silent = true})
+vim.keymap.set('n', '<C-o>', ':pop<CR>', { noremap = true, silent = true })
+vim.keymap.set('n', '<C-i>', ':tag<CR>', { noremap = true, silent = true })
 
 -- Saving
 vim.keymap.set('n', '<C-s>', ':wa<CR>', { silent = true })
 vim.keymap.set('i', '<C-s>', '<Esc>:wa<CR>', { silent = true })
+
+-- Refresh on git changes
+vim.o.autoread = true
+
+vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "CursorHold", "CursorHoldI" }, {
+	pattern = "*",
+	callback = function()
+		if vim.fn.mode() ~= "c" then
+			vim.cmd("checktime")
+		end
+	end,
+})
+
+vim.api.nvim_create_autocmd("FileChangedShellPost", {
+	callback = function()
+		vim.notify("File changed on disk. Buffer reloaded.", vim.log.levels.WARN)
+	end,
+})
+
+vim.api.nvim_create_autocmd("FocusGained", {
+	callback = function()
+		-- gitsigns
+		-- nvim-tree
+		pcall(function() require("nvim-tree.api").tree.reload() end)
+		-- neo-tree
+		pcall(function() require("neo-tree.sources.manager").refresh("filesystem") end)
+		-- restart LSP if you want it to re-index after big branch jumps
+		-- vim.cmd("LspRestart")
+	end,
+})
